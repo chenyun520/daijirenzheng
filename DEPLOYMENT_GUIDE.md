@@ -32,11 +32,10 @@ wrangler login
 
 ### 步骤3：创建 D1 数据库
 
-```bash
-wrangler d1 create "哈尔斯认证数据库"
-```
+wrangler d1 create "levelcertification"
 
 **重要**：复制命令输出中的 `database_id`，例如：
+
 ```
 database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
@@ -45,7 +44,7 @@ database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 ```bash
 # 执行数据库初始化脚本
-wrangler d1 execute "哈尔斯认证数据库" --file=./schema.sql
+wrangler d1 execute "levelcertification" --remote --file=./schema.sql
 ```
 
 ### 步骤5：配置 wrangler.toml
@@ -54,8 +53,8 @@ wrangler d1 execute "哈尔斯认证数据库" --file=./schema.sql
 
 ```toml
 [[d1_databases]]
-binding = "DB"
-database_name = "哈尔斯认证数据库"
+binding = "levelcertification"
+database_name = "levelcertification"
 database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # 替换为实际ID
 ```
 
@@ -66,6 +65,7 @@ wrangler deploy
 ```
 
 部署成功后，会显示类似以下信息：
+
 ```
 Published haers-certification-api (X.X sec)
   https://haers-certification-api.your-subdomain.workers.dev
@@ -75,7 +75,7 @@ Published haers-certification-api (X.X sec)
 
 ### 步骤7：配置前端 API 地址
 
-打开 `index.html`，找到第 476 行左右，将 API_BASE_URL 替换为你的 Workers URL：
+打开 `index.html`，确认 API 地址配置正确（默认指向 Workers URL，也可通过 `?api=` 覆盖）：
 
 ```javascript
 const API_BASE_URL = 'https://haers-certification-api.your-subdomain.workers.dev';
@@ -96,16 +96,29 @@ const API_BASE_URL = 'https://haers-certification-api.your-subdomain.workers.dev
 
 直接推送到 GitHub，GitHub Pages 会自动部署。
 
+## 🤖 GitHub 自动部署（Workers）
+
+仓库已提供 GitHub Actions 工作流：推送到 `main/master` 后会自动执行 `wrangler deploy`。
+
+在 GitHub 仓库里新增以下 Secrets（Settings → Secrets and variables → Actions → New repository secret）：
+
+- `CLOUDFLARE_API_TOKEN`：需要包含 Workers 与 D1 权限（至少 workers:write、d1:write）
+- `CLOUDFLARE_ACCOUNT_ID`：你的 Cloudflare Account ID
+
+如需手动触发远程建表/更新结构，可在 Actions 里运行工作流并把 `run_migrations` 设为 `true`（会执行 `schema.sql`）。
+
 ## 🔧 验证部署
 
 ### 1. 测试 API 健康检查
 
 在浏览器访问：
+
 ```
 https://your-worker-url.workers.dev/api/health
 ```
 
 应该返回：
+
 ```json
 {
   "status": "ok",
@@ -124,6 +137,7 @@ curl -X POST https://your-worker-url.workers.dev/api/login \
 ```
 
 应该返回：
+
 ```json
 {
   "success": true,
@@ -224,6 +238,7 @@ console.log(`Exam saved: userId=${userId}, subject=${subject}, score=${score}`);
 ```
 
 查看日志：
+
 ```bash
 wrangler tail
 ```
@@ -241,6 +256,7 @@ wrangler d1 execute "哈尔斯认证数据库" --file=./migration.sql
 ### Q: Workers 免费版限制？
 
 A:
+
 - 每天 100,000 次请求
 - D1 数据库：
   - 存储：5GB
@@ -254,6 +270,7 @@ A: 在 Cloudflare Dashboard → Workers & Pages → Resources → 升级
 ## 📞 技术支持
 
 如有问题，请检查：
+
 1. Wrangler 版本：`wrangler --version`
 2. 数据库是否已创建
 3. database_id 是否正确配置

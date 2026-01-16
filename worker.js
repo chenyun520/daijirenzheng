@@ -69,22 +69,22 @@ async function handleLogin(request, env, corsHeaders) {
 
   try {
     // 查找或创建用户
-    let user = await env.DB.prepare(
+    let user = await env.levelcertification.prepare(
       'SELECT * FROM users WHERE employee_id = ?'
     ).bind(employeeId).first();
 
     if (!user) {
       // 创建新用户
-      const result = await env.DB.prepare(
+      const result = await env.levelcertification.prepare(
         'INSERT INTO users (employee_id, name) VALUES (?, ?)'
       ).bind(employeeId, name).run();
 
-      user = await env.DB.prepare(
+      user = await env.levelcertification.prepare(
         'SELECT * FROM users WHERE id = ?'
       ).bind(result.meta.last_row_id).first();
     } else {
       // 更新用户名（如果可能变化）
-      await env.DB.prepare(
+      await env.levelcertification.prepare(
         'UPDATE users SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE employee_id = ?'
       ).bind(name, employeeId).run();
     }
@@ -124,7 +124,7 @@ async function handleSaveExam(request, env, corsHeaders) {
 
   try {
     // 插入考试记录
-    const result = await env.DB.prepare(`
+    const result = await env.levelcertification.prepare(`
       INSERT INTO exam_records (user_id, subject, score, total_questions, correct_count, time_spent)
       VALUES (?, ?, ?, ?, ?, ?)
     `).bind(userId, subject, score, totalQuestions, correctCount, timeSpent || 0).run();
@@ -133,7 +133,7 @@ async function handleSaveExam(request, env, corsHeaders) {
 
     // 如果有错题，插入错题记录
     if (wrongAnswers && wrongAnswers.length > 0) {
-      const stmt = env.DB.prepare(`
+      const stmt = env.levelcertification.prepare(`
         INSERT INTO wrong_answers (exam_record_id, question_number, question_text, user_answer, correct_answer)
         VALUES (?, ?, ?, ?, ?)
       `);
@@ -150,7 +150,7 @@ async function handleSaveExam(request, env, corsHeaders) {
     }
 
     // 查询用户的该科目历史最高分
-    const bestScore = await env.DB.prepare(`
+    const bestScore = await env.levelcertification.prepare(`
       SELECT MAX(score) as best_score FROM exam_records
       WHERE user_id = ? AND subject = ?
     `).bind(userId, subject).first();
@@ -186,7 +186,7 @@ async function handleGetUserExams(request, env, corsHeaders) {
   }
 
   try {
-    const records = await env.DB.prepare(`
+    const records = await env.levelcertification.prepare(`
       SELECT
         er.id,
         er.subject,
@@ -232,7 +232,7 @@ async function handleGetExamHistory(request, env, corsHeaders) {
 
   try {
     // 获取考试记录
-    const exam = await env.DB.prepare(`
+    const exam = await env.levelcertification.prepare(`
       SELECT er.*, u.name, u.employee_id
       FROM exam_records er
       JOIN users u ON er.user_id = u.id
@@ -247,7 +247,7 @@ async function handleGetExamHistory(request, env, corsHeaders) {
     }
 
     // 获取错题详情
-    const wrongAnswers = await env.DB.prepare(`
+    const wrongAnswers = await env.levelcertification.prepare(`
       SELECT question_number, question_text, user_answer, correct_answer
       FROM wrong_answers
       WHERE exam_record_id = ?
@@ -284,7 +284,7 @@ async function handleGetStats(request, env, corsHeaders) {
 
     if (userId) {
       // 单个用户的统计
-      stats = await env.DB.prepare(`
+      stats = await env.levelcertification.prepare(`
         SELECT
           subject,
           COUNT(*) as exam_count,
@@ -297,7 +297,7 @@ async function handleGetStats(request, env, corsHeaders) {
       `).bind(userId).all();
     } else if (subject) {
       // 单个科目的统计
-      stats = await env.DB.prepare(`
+      stats = await env.levelcertification.prepare(`
         SELECT
           COUNT(*) as total_exams,
           AVG(score) as avg_score,
@@ -309,10 +309,10 @@ async function handleGetStats(request, env, corsHeaders) {
     } else {
       // 全局统计
       stats = {
-        totalUsers: (await env.DB.prepare('SELECT COUNT(*) as count FROM users').first()).count,
-        totalExams: (await env.DB.prepare('SELECT COUNT(*) as count FROM exam_records').first()).count,
-        passRate: (await env.DB.prepare('SELECT AVG(CASE WHEN score >= 80 THEN 100 ELSE 0 END) as rate FROM exam_records').first()).rate,
-        bySubject: await env.DB.prepare('SELECT * FROM subject_stats').all(),
+        totalUsers: (await env.levelcertification.prepare('SELECT COUNT(*) as count FROM users').first()).count,
+        totalExams: (await env.levelcertification.prepare('SELECT COUNT(*) as count FROM exam_records').first()).count,
+        passRate: (await env.levelcertification.prepare('SELECT AVG(CASE WHEN score >= 80 THEN 100 ELSE 0 END) as rate FROM exam_records').first()).rate,
+        bySubject: await env.levelcertification.prepare('SELECT * FROM subject_stats').all(),
       };
     }
 

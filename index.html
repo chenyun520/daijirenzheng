@@ -470,10 +470,11 @@
     </div>
 
     <script>
-        // ================= API 配置 =================
-        // ⚠️ 部署后请替换为你的 Cloudflare Workers URL
-        // 例如: const API_BASE_URL = 'https://haers-certification-api.your-subdomain.workers.dev';
-        const API_BASE_URL = 'https://your-worker-url.workers.dev'; // 需要替换为实际的 Workers URL
+        const API_BASE_URL = (
+            (typeof window !== 'undefined' && window.__API_BASE_URL__) ||
+            new URLSearchParams(location.search).get('api') ||
+            'https://haers-certification-api.gaolujie26.workers.dev'
+        ).replace(/\/$/, '');
 
         // ================= API 调用函数 =================
         async function apiLogin(employeeId, name) {
