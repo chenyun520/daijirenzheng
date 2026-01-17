@@ -16,6 +16,13 @@ Cloudflare D1 (SQLite 数据库)
 
 ## 📦 部署步骤
 
+> 本仓库当前已按实际环境配置：
+> - Workers 名称：`haers-certification-api`
+> - D1 数据库名称：`levelcertification`
+> - D1 绑定名：`levelcertification`（在代码里通过 `env.levelcertification` 访问）
+> - D1 database_id：`9c819a89-9bce-4eca-ba41-8d799277cd5b`
+> - 已部署的 API（示例）：`https://haers-certification-api.gaolujie26.workers.dev`
+
 ### 步骤1：安装 Wrangler CLI
 
 ```bash
@@ -49,7 +56,7 @@ wrangler d1 execute "levelcertification" --remote --file=./schema.sql
 
 ### 步骤5：配置 wrangler.toml
 
-打开 `wrangler.toml` 文件，将步骤3获得的 `database_id` 填入：
+打开 `wrangler.toml` 文件，将步骤3获得的 `database_id` 填入（本仓库已填好当前环境的 `database_id`，如果你新建了数据库需要替换成你自己的）：
 
 ```toml
 [[d1_databases]]
@@ -75,10 +82,14 @@ Published haers-certification-api (X.X sec)
 
 ### 步骤7：配置前端 API 地址
 
-打开 `index.html`，确认 API 地址配置正确（默认指向 Workers URL，也可通过 `?api=` 覆盖）：
+打开 `index.html`，确认 API 地址配置正确（默认指向 Workers URL，也可通过 `?api=` 或 `window.__API_BASE_URL__` 覆盖）：
 
 ```javascript
-const API_BASE_URL = 'https://haers-certification-api.your-subdomain.workers.dev';
+const API_BASE_URL = (
+  (typeof window !== 'undefined' && window.__API_BASE_URL__) ||
+  new URLSearchParams(location.search).get('api') ||
+  'https://haers-certification-api.gaolujie26.workers.dev'
+).replace(/\/$/, '');
 ```
 
 ### 步骤8：部署前端
@@ -114,7 +125,7 @@ const API_BASE_URL = 'https://haers-certification-api.your-subdomain.workers.dev
 在浏览器访问：
 
 ```
-https://your-worker-url.workers.dev/api/health
+https://haers-certification-api.gaolujie26.workers.dev/api/health
 ```
 
 应该返回：
@@ -131,7 +142,7 @@ https://your-worker-url.workers.dev/api/health
 使用 Postman 或 curl 测试：
 
 ```bash
-curl -X POST https://your-worker-url.workers.dev/api/login \
+curl -X POST https://haers-certification-api.gaolujie26.workers.dev/api/login \
   -H "Content-Type: application/json" \
   -d '{"employeeId":"TEST001","name":"测试用户"}'
 ```
@@ -157,31 +168,161 @@ curl -X POST https://your-worker-url.workers.dev/api/login \
 4. 完成考试
 5. 检查成绩是否保存到数据库
 
-## 📊 查询数据库
+## 🧩 系统功能与 API 使用
 
-### 使用 Wrangler CLI
+> API 默认无鉴权（便于内网/培训快速使用）。如需对外开放，请阅读“安全建议”章节。
+
+### 1) 健康检查
+
+- `GET /api/health`
 
 ```bash
-# 查看所有用户
-wrangler d1 execute "哈尔斯认证数据库" --command="SELECT * FROM users"
-
-# 查看考试记录
-wrangler d1 execute "哈尔斯认证数据库" --command="SELECT * FROM exam_records ORDER BY exam_date DESC LIMIT 10"
-
-# 查看错题记录
-wrangler d1 execute "哈尔斯认证数据库" --command="SELECT * FROM wrong_answers LIMIT 10"
-
-# 查看用户统计
-wrangler d1 execute "哈尔斯认证数据库" --command="SELECT * FROM user_exam_stats"
+curl https://haers-certification-api.gaolujie26.workers.dev/api/health
 ```
 
-### 使用 Cloudflare Dashboard
+### 2) 登录 / 创建用户
+
+- `POST /api/login`
+- 请求体：`{ "employeeId": "工号", "name": "姓名" }`
+- 返回：`{ success, user: { id, employeeId, name } }`
+
+```bash
+curl -X POST https://haers-certification-api.gaolujie26.workers.dev/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"employeeId":"TEST001","name":"测试用户"}'
+```
+
+### 3) 保存考试成绩
+
+- `POST /api/save-exam`
+- 请求体字段（核心）：
+  - `userId`：登录返回的用户 id
+  - `subject`：科目（例如 DM/PSP/SW/VSM/5S/TIMWOODS）
+  - `score`：0-100
+  - `totalQuestions`：总题数
+  - `correctCount`：答对题数
+  - `timeSpent`：耗时（秒，可选）
+  - `wrongAnswers`：错题数组（可选）
+
+```bash
+curl -X POST https://haers-certification-api.gaolujie26.workers.dev/api/save-exam \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "subject": "DM",
+    "score": 85,
+    "totalQuestions": 20,
+    "correctCount": 17,
+    "timeSpent": 260,
+    "wrongAnswers": [
+      {
+        "questionNumber": 2,
+        "questionText": "示例题目",
+        "userAnswer": "A",
+        "correctAnswer": "B"
+      }
+    ]
+  }'
+```
+
+### 4) 查询用户考试记录
+
+- `GET /api/user-exams?userId=1`
+
+```bash
+curl "https://haers-certification-api.gaolujie26.workers.dev/api/user-exams?userId=1"
+```
+
+### 5) 查询单次考试详情（含错题）
+
+- `GET /api/exam-history?examRecordId=123`
+
+```bash
+curl "https://haers-certification-api.gaolujie26.workers.dev/api/exam-history?examRecordId=123"
+```
+
+### 6) 统计接口
+
+- `GET /api/stats`：全局统计
+- `GET /api/stats?userId=1`：用户维度统计（按科目）
+- `GET /api/stats?subject=DM`：科目维度统计
+
+```bash
+curl "https://haers-certification-api.gaolujie26.workers.dev/api/stats"
+curl "https://haers-certification-api.gaolujie26.workers.dev/api/stats?userId=1"
+curl "https://haers-certification-api.gaolujie26.workers.dev/api/stats?subject=DM"
+```
+
+## 🗄️ 数据库管理与查询（D1）
+
+### 0) 重要概念：local vs remote
+
+- 不带 `--remote`：默认操作本地开发数据库（`.wrangler/` 下），用于本地调试
+- 带 `--remote`：操作 Cloudflare 上的远程数据库（生产/线上）
+
+建议：只要你是在“管理线上数据”，所有命令都加 `--remote`。
+
+### 1) 查看数据库信息
+
+```bash
+wrangler d1 info levelcertification
+```
+
+### 2) 查看/管理表结构（建议线上加 --remote）
+
+```bash
+# 列出表
+wrangler d1 execute levelcertification --remote --command "SELECT name, sql FROM sqlite_master WHERE type='table' ORDER BY name;"
+
+# 列出视图
+wrangler d1 execute levelcertification --remote --command "SELECT name, sql FROM sqlite_master WHERE type='view' ORDER BY name;"
+```
+
+### 3) 常用业务查询（线上）
+
+```bash
+# 用户列表（最近 50）
+wrangler d1 execute levelcertification --remote --command "SELECT id, employee_id, name, created_at, updated_at FROM users ORDER BY id DESC LIMIT 50;"
+
+# 通过工号查用户
+wrangler d1 execute levelcertification --remote --command "SELECT * FROM users WHERE employee_id='TEST001' LIMIT 1;"
+
+# 最近 20 条考试记录
+wrangler d1 execute levelcertification --remote --command "SELECT id, user_id, subject, score, total_questions, correct_count, time_spent, exam_date FROM exam_records ORDER BY exam_date DESC LIMIT 20;"
+
+# 查看某次考试的错题
+wrangler d1 execute levelcertification --remote --command "SELECT question_number, question_text, user_answer, correct_answer, created_at FROM wrong_answers WHERE exam_record_id=123 ORDER BY question_number;"
+
+# 视图：用户按科目统计
+wrangler d1 execute levelcertification --remote --command "SELECT * FROM user_exam_stats WHERE employee_id='TEST001' ORDER BY subject;"
+
+# 视图：科目统计
+wrangler d1 execute levelcertification --remote --command "SELECT * FROM subject_stats ORDER BY subject;"
+```
+
+### 4) 数据清理（示例）
+
+```bash
+# 删除测试工号（会因外键约束导致历史记录仍在；如需级联删除请自行补充 SQL）
+wrangler d1 execute levelcertification --remote --command "DELETE FROM users WHERE employee_id='TEST001';"
+```
+
+### 5) 使用 Cloudflare Dashboard 查询
 
 1. 登录 Cloudflare Dashboard
-2. 进入 Workers & Pages
-3. 选择 D1
-4. 选择 "哈尔斯认证数据库"
-5. 在 Console 中执行 SQL 查询
+2. Workers & Pages → D1
+3. 选择数据库 `levelcertification`
+4. 在 Console 中执行 SQL 查询
+
+### 6) 备份与恢复（导出 SQL）
+
+```bash
+# 导出（线上）
+wrangler d1 export levelcertification --remote --output=backup.sql
+
+# 恢复（线上）
+wrangler d1 execute levelcertification --remote --file=./backup.sql
+```
 
 ## 🔐 安全建议
 
@@ -213,11 +354,11 @@ function validateRequest(request) {
 定期备份数据库：
 
 ```bash
-# 导出数据
-wrangler d1 export "哈尔斯认证数据库" --output=backup.sql
+# 导出（线上）
+wrangler d1 export levelcertification --remote --output=backup.sql
 
-# 恢复数据
-wrangler d1 execute "哈尔斯认证数据库" --file=./backup.sql
+# 恢复（线上）
+wrangler d1 execute levelcertification --remote --file=./backup.sql
 ```
 
 ## 📈 监控和分析
@@ -250,7 +391,7 @@ wrangler tail
 A: 创建迁移脚本，然后执行：
 
 ```bash
-wrangler d1 execute "哈尔斯认证数据库" --file=./migration.sql
+wrangler d1 execute levelcertification --remote --file=./migration.sql
 ```
 
 ### Q: Workers 免费版限制？

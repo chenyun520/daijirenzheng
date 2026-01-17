@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>哈尔斯带级认证学习系统</title>
+    <link rel="icon" type="image/png" href="企业logo白字透明底.png">
+    <link rel="apple-touch-icon" href="企业logo白字透明底.png">
     <style>
         :root {
             --klein-blue: #002FA7;
@@ -21,14 +23,24 @@
         body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: var(--pure-white); color: var(--text-dark); line-height: 1.7; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
 
         /* --- 布局组件 --- */
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; flex: 1; width: 100%; }
+        .container { max-width: 1440px; margin: 0 auto; padding: 20px; position: relative; flex: 1; width: 100%; }
         .top-accent { height: 4px; background: var(--bright-yellow); width: 100%; position: fixed; top: 0; left: 0; z-index: 1000; }
 
         nav { display: flex; justify-content: space-between; align-items: center; padding: 25px 0; border-bottom: 1px solid #eee; margin-bottom: 30px; background: var(--pure-white); }
-        .logo { color: var(--klein-blue); font-size: 1.8rem; font-weight: 800; cursor: pointer; letter-spacing: -0.5px; }
+        .brand { display: inline-flex; align-items: center; gap: 12px; cursor: pointer; }
+        .brand-mark { width: 78px; height: 78px; border-radius: 24px; background: var(--klein-blue); display: grid; place-items: center; box-shadow: 0 16px 40px rgba(0,47,167,0.28); }
+        .brand-mark img { width: 60px; height: 60px; object-fit: contain; display: block; }
+        .logo { color: var(--klein-blue); font-size: 1.8rem; font-weight: 950; letter-spacing: -0.5px; }
         .nav-links { display: flex; gap: 25px; }
         .nav-item { cursor: pointer; color: var(--text-dark); font-weight: 600; transition: 0.3s; position: relative; }
         .nav-item:hover { color: var(--klein-blue); }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .user-chip { display: none; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(17,24,39,0.10); background: #ffffff; cursor: pointer; transition: 0.18s; }
+        .user-chip:hover { border-color: rgba(0,47,167,0.22); background: rgba(0,47,167,0.03); }
+        .user-avatar { width: 30px; height: 30px; border-radius: 999px; display: grid; place-items: center; background: rgba(0,47,167,0.12); color: var(--klein-blue); font-weight: 950; }
+        .user-avatar svg { width: 18px; height: 18px; }
+        .user-name { font-weight: 900; color: #111827; }
+        .user-meta { color: #6b7280; font-weight: 800; font-size: 0.9rem; }
         
         /* --- 按钮系统 --- */
         .btn { padding: 10px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -43,17 +55,21 @@
         /* --- 首页（无背景图，标题居中） --- */
         #hero-page { padding: 96px 0 70px; animation: fadeIn 0.8s ease-out; }
         .cover-section { background: transparent; }
-        .cover-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; text-align: center; }
+        .cover-inner { max-width: 1440px; margin: 0 auto; padding: 0 20px; text-align: center; }
 
         .hero-title { font-size: 3.45rem; color: var(--klein-blue); margin-bottom: 22px; font-weight: 950; letter-spacing: -0.5px; text-align:center; }
         .hero-subtitle { font-size: 1.08rem; color: #4b5563; margin-bottom: 18px; max-width: 980px; font-weight: 650; margin-left: auto; margin-right: auto; text-align:center; }
         .hero-slogan { margin-bottom: 52px; color: #0b1b3a; font-weight: 950; letter-spacing: 1px; text-align:center; }
 
-        .mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 26px; }
+        .mode-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; margin-top: 26px; }
         .mode-card { background: #ffffff; border: 1px solid rgba(17,24,39,0.10); border-radius: 22px; padding: 34px 26px 30px; cursor: pointer; transition: 0.18s; position: relative; overflow: hidden; text-align: center; box-shadow: 0 14px 40px rgba(17,24,39,0.06); }
         .mode-card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(0,47,167,0.14), transparent 55%); opacity: 0.28; }
         .mode-card > * { position: relative; z-index: 1; }
         .mode-card:hover { transform: translateY(-4px); box-shadow: 0 22px 60px rgba(17,24,39,0.10); border-color: rgba(0,47,167,0.20); }
+        .mode-card.talent { grid-column: auto; }
+        .mode-card.mode-exam { border-color: rgba(220,53,69,0.22); box-shadow: 0 16px 46px rgba(220,53,69,0.10); }
+        .mode-card.mode-exam::before { background: radial-gradient(circle at 50% 0%, rgba(255,215,0,0.22), rgba(220,53,69,0.12), transparent 60%); opacity: 0.45; }
+        .mode-card.mode-exam:hover { border-color: rgba(220,53,69,0.38); box-shadow: 0 26px 70px rgba(220,53,69,0.16); }
 
         .mode-num { position: absolute; top: 16px; left: 16px; display: inline-flex; align-items: center; justify-content: center; padding: 7px 11px; border-radius: 999px; background: rgba(17,24,39,0.05); color: #111827; font-weight: 950; font-size: 0.9rem; letter-spacing: 0.6px; }
         .mode-icon { width: 72px; height: 72px; border-radius: 22px; display: grid; place-items: center; margin: 6px auto 16px; }
@@ -69,8 +85,34 @@
         .mode-arrow { position: absolute; right: 16px; top: 16px; width: 36px; height: 36px; border-radius: 999px; border: 1px solid rgba(17,24,39,0.10); display:flex; align-items:center; justify-content:center; color: rgba(17,24,39,0.55); background: rgba(255,255,255,0.7); }
         .mode-card:hover .mode-arrow { color: var(--klein-blue); border-color: rgba(0,47,167,0.22); background: rgba(0,47,167,0.04); }
 
+        @media (max-width: 1280px) {
+            .mode-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
         @media (max-width: 980px) {
+            .mode-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 720px) {
             .mode-grid { grid-template-columns: 1fr; }
+        }
+
+        #memo-modules { text-align: left; }
+        .memo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; width: 100%; }
+        .memo-card { background: #ffffff; border: 1px solid rgba(17,24,39,0.10); border-radius: 18px; padding: 18px 18px 16px; cursor: pointer; transition: 0.18s; position: relative; overflow: hidden; text-align: left; box-shadow: 0 12px 34px rgba(17,24,39,0.05); display: grid; gap: 8px; }
+        .memo-card:hover { transform: translateY(-2px); box-shadow: 0 18px 46px rgba(17,24,39,0.10); border-color: rgba(0,47,167,0.20); }
+        .memo-head { display: flex; align-items: center; gap: 10px; }
+        .memo-icon { width: 38px; height: 38px; border-radius: 14px; display: grid; place-items: center; background: rgba(0,47,167,0.10); color: var(--klein-blue); }
+        .memo-icon svg { width: 20px; height: 20px; }
+        .memo-title { font-weight: 950; color: #111827; letter-spacing: 0.2px; }
+        .memo-desc { color: #4b5563; font-weight: 750; line-height: 1.65; }
+        .memo-hint { color: #b45309; font-weight: 900; font-size: 0.92rem; }
+        .memo-card.locked { cursor: not-allowed; }
+        .memo-card.locked:hover { transform: none; box-shadow: 0 12px 34px rgba(17,24,39,0.05); border-color: rgba(17,24,39,0.10); }
+        .memo-card.locked::after { content: "LOCKED"; position: absolute; right: 14px; top: 12px; opacity: 0.55; font-weight: 950; font-size: 0.85rem; letter-spacing: 0.6px; }
+
+        @media (max-width: 720px) {
+            .memo-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 900px) {
@@ -98,17 +140,53 @@
             align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
         .login-card {
-            background: white; padding: 40px; border-radius: 16px; width: 90%; max-width: 400px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: bounceIn 0.5s; text-align: center;
+            background: #ffffff; padding: 34px; border-radius: 18px; width: 92%; max-width: 780px;
+            box-shadow: 0 28px 70px rgba(0,0,0,0.20); animation: bounceIn 0.5s; text-align: center;
+            border: 1px solid rgba(255,255,255,0.32);
+            max-height: 86vh;
+            overflow: auto;
         }
-        .login-title { font-size: 1.5rem; color: var(--klein-blue); margin-bottom: 20px; font-weight: 800; }
-        .input-group { margin-bottom: 20px; text-align: left; }
+        .login-title { font-size: 1.75rem; color: var(--klein-blue); margin-bottom: 10px; font-weight: 950; letter-spacing: -0.2px; }
+        .login-slogan { margin-bottom: 18px; font-weight: 950; color: #0b1b3a; letter-spacing: 0.8px; }
+        .login-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .login-layout { display: grid; grid-template-columns: 1fr 240px; gap: 18px; align-items: start; margin-top: 6px; }
+        .login-left { display: grid; gap: 14px; }
+        .login-right { text-align: left; }
+        .auth-aside { background: linear-gradient(135deg, rgba(0,47,167,0.07), rgba(0,47,167,0.02)); border: 1px solid rgba(0,47,167,0.14); border-radius: 18px; padding: 18px; display: grid; gap: 14px; }
+        .auth-aside-head { display: flex; align-items: center; gap: 12px; }
+        .auth-aside-logo { width: 52px; height: 52px; border-radius: 18px; background: var(--klein-blue); display: grid; place-items: center; box-shadow: 0 14px 32px rgba(0,47,167,0.22); flex-shrink: 0; }
+        .auth-aside-logo img { width: 38px; height: 38px; object-fit: contain; display: block; }
+        .auth-aside-title { font-weight: 950; color: #111827; letter-spacing: -0.2px; }
+        .auth-aside-sub { color: #6b7280; font-weight: 850; font-size: 0.92rem; margin-top: 2px; }
+        .auth-aside-list { display: grid; gap: 10px; }
+        .auth-aside-item { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 16px; background: #ffffff; border: 1px solid rgba(17,24,39,0.08); }
+        .auth-aside-icon { width: 36px; height: 36px; border-radius: 14px; background: rgba(0,47,167,0.10); color: var(--klein-blue); display: grid; place-items: center; flex-shrink: 0; }
+        .auth-aside-icon svg { width: 20px; height: 20px; }
+        .auth-aside-item-title { font-weight: 950; color: #111827; font-size: 0.96rem; line-height: 1.2; }
+        .auth-aside-item-desc { color: #6b7280; font-weight: 800; font-size: 0.88rem; margin-top: 3px; line-height: 1.35; }
+        .input-group { margin-bottom: 14px; text-align: left; }
         .input-group label { display: block; margin-bottom: 8px; color: #666; font-weight: 600; font-size: 0.9rem; }
         .input-field {
             width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px;
             font-size: 1rem; transition: 0.3s; outline: none;
         }
         .input-field:focus { border-color: var(--klein-blue); box-shadow: 0 0 0 3px rgba(0, 47, 167, 0.1); }
+
+        .avatar-picker { margin-top: 16px; text-align: left; }
+        .avatar-picker-title { display: block; margin-bottom: 10px; color: #666; font-weight: 600; font-size: 0.9rem; }
+        .avatar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .avatar-option { width: 100%; aspect-ratio: 1; border-radius: 14px; border: 2px solid #eee; background: #ffffff; cursor: pointer; transition: 0.18s; display: grid; place-items: center; }
+        .avatar-option:hover { border-color: rgba(0,47,167,0.26); background: rgba(0,47,167,0.03); transform: translateY(-1px); }
+        .avatar-option.selected { border-color: var(--klein-blue); box-shadow: 0 0 0 3px rgba(0, 47, 167, 0.10); }
+        .avatar-option svg { width: 26px; height: 26px; }
+
+        @media (max-width: 420px) {
+            .avatar-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 520px) {
+            .login-form-grid { grid-template-columns: 1fr; }
+            .login-layout { grid-template-columns: 1fr; }
+        }
 
         /* --- 知识学习 (Rich Content Styles) --- */
         .content-section { display: none; padding-bottom: 60px; animation: fadeIn 0.5s; }
@@ -192,6 +270,116 @@
         .option.wrong .opt-char { background: var(--fail-red); color: white; }
 
         .feedback-box { margin-top: 25px; padding: 20px; background: var(--gray-bg); border-radius: 10px; border-left: 4px solid var(--klein-blue); animation: fadeIn 0.3s; display: none; }
+
+        .bank-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .bank-search { flex: 1; min-width: 260px; padding: 12px 14px; border: 2px solid #eee; border-radius: 10px; font-size: 1rem; outline: none; transition: 0.2s; }
+        .bank-search:focus { border-color: var(--klein-blue); box-shadow: 0 0 0 3px rgba(0, 47, 167, 0.1); }
+        .bank-select { padding: 12px 14px; border: 2px solid #eee; border-radius: 10px; font-size: 1rem; outline: none; transition: 0.2s; background: white; }
+        .bank-select:focus { border-color: var(--klein-blue); box-shadow: 0 0 0 3px rgba(0, 47, 167, 0.1); }
+        .bank-toggle { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: #374151; user-select: none; }
+        .bank-toggle input { width: 18px; height: 18px; }
+        .bank-meta { margin-top: 12px; color: #6b7280; font-weight: 800; }
+        .bank-list { margin-top: 14px; display: grid; gap: 12px; }
+        .bank-item { border: 1px solid rgba(17,24,39,0.10); border-radius: 14px; padding: 14px 16px; background: #ffffff; }
+        .bank-item-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .bank-badges { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .bank-badge { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-weight: 950; font-size: 0.82rem; letter-spacing: 0.3px; }
+        .bank-badge.type { background: rgba(0,47,167,0.10); color: var(--klein-blue); }
+        .bank-badge.no { background: rgba(17,24,39,0.06); color: #111827; }
+        .bank-q { font-weight: 950; color: #111827; line-height: 1.65; font-size: 1.05rem; }
+        .bank-a { margin-top: 10px; font-weight: 900; color: #155724; background: #e7f9ee; border: 1px solid rgba(40,167,69,0.22); padding: 10px 12px; border-radius: 12px; }
+        .bank-expl { margin-top: 10px; color: #374151; font-weight: 700; line-height: 1.7; background: #f8fafc; border: 1px solid rgba(17,24,39,0.10); padding: 10px 12px; border-radius: 12px; }
+
+        .talent-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+        .talent-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .talent-search { flex: 1; min-width: 260px; padding: 12px 14px; border: 2px solid #eee; border-radius: 10px; font-size: 1rem; outline: none; transition: 0.2s; }
+        .talent-search:focus { border-color: var(--klein-blue); box-shadow: 0 0 0 3px rgba(0, 47, 167, 0.1); }
+        .talent-select { padding: 12px 14px; border: 2px solid #eee; border-radius: 10px; font-size: 1rem; outline: none; transition: 0.2s; background: white; }
+        .talent-select:focus { border-color: var(--klein-blue); box-shadow: 0 0 0 3px rgba(0, 47, 167, 0.1); }
+        .talent-meta { margin-top: 12px; color: #6b7280; font-weight: 800; }
+        .talent-grid { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        @media (max-width: 980px) {
+            .talent-grid { grid-template-columns: 1fr; }
+        }
+        .talent-card { border: 1px solid rgba(17,24,39,0.10); border-radius: 14px; padding: 14px 16px; background: #ffffff; display: grid; gap: 8px; }
+        .talent-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .talent-name { font-weight: 950; color: #111827; letter-spacing: 0.2px; }
+        .talent-dept { color: #4b5563; font-weight: 800; }
+        .talent-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .talent-tag { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-weight: 950; font-size: 0.82rem; letter-spacing: 0.3px; }
+        .talent-tag.green { background: rgba(40,167,69,0.14); color: #155724; }
+        .talent-tag.black { background: rgba(17,24,39,0.10); color: #111827; }
+        .talent-tag.badge { background: rgba(255,215,0,0.34); color: #7a5b00; }
+
+        .badge-award { position: relative; overflow: hidden; padding-top: 56px; }
+        .badge-award::before {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            background: conic-gradient(from 120deg, rgba(255,215,0,0.20), rgba(0,47,167,0.18), rgba(255,215,0,0.32));
+            opacity: 0.55;
+            filter: blur(10px);
+            animation: badgeGlow 3.6s ease-in-out infinite;
+        }
+        .badge-award::after {
+            content: "";
+            position: absolute;
+            top: -60%;
+            left: -40%;
+            width: 60%;
+            height: 220%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+            transform: rotate(18deg);
+            animation: badgeShine 2.8s ease-in-out infinite;
+        }
+        .badge-award > * { position: relative; z-index: 1; }
+        .badge-award { box-shadow: 0 12px 34px rgba(17,24,39,0.08); transform: translateZ(0); }
+        .badge-award:hover { transform: translateY(-2px); box-shadow: 0 18px 46px rgba(17,24,39,0.12); }
+
+        .badge-ribbon {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(255,215,0,0.34);
+            color: #7a5b00;
+            font-weight: 950;
+            letter-spacing: 0.3px;
+            border: 1px solid rgba(122,91,0,0.18);
+        }
+        .badge-award .talent-head { padding-right: 132px; }
+        @media (max-width: 420px) {
+            .badge-award { padding-top: 62px; }
+            .badge-award .talent-head { padding-right: 0; }
+            .badge-ribbon { right: 10px; top: 10px; }
+        }
+        .badge-medal {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, #fff2a8, #ffd700 55%, #caa000);
+            box-shadow: 0 0 0 3px rgba(255,215,0,0.26);
+            animation: badgePulse 1.9s ease-in-out infinite;
+        }
+
+        @keyframes badgeGlow {
+            0%, 100% { transform: scale(1); opacity: 0.45; }
+            50% { transform: scale(1.04); opacity: 0.72; }
+        }
+        @keyframes badgeShine {
+            0%, 100% { transform: translateX(-120%) rotate(18deg); opacity: 0.0; }
+            35% { opacity: 0.18; }
+            55% { opacity: 0.0; }
+            70% { transform: translateX(260%) rotate(18deg); opacity: 0.0; }
+        }
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
         
         /* --- 结果页 --- */
         #result-section { text-align: center; display: none; padding-top: 50px; flex: 1; }
@@ -234,7 +422,7 @@
 
         footer { margin-top: auto; }
         .site-footer { border-top: 1px solid rgba(17,24,39,0.10); background: #ffffff; }
-        .footer-inner { max-width: 1200px; margin: 0 auto; padding: 42px 20px; }
+        .footer-inner { max-width: 1440px; margin: 0 auto; padding: 42px 20px; }
         .footer-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 28px; align-items: start; }
         .footer-brand { display: grid; gap: 10px; }
         .footer-brand-title { font-weight: 950; color: #111827; letter-spacing: 0.2px; font-size: 1.05rem; }
@@ -247,9 +435,12 @@
         .footer-link:hover { color: var(--klein-blue); background: rgba(0,47,167,0.04); border-color: rgba(0,47,167,0.14); }
         .footer-sign { color: #9aa3b2; font-size: 0.9rem; text-align: right; }
 
-        .footer-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; background: var(--klein-blue); color: #ffffff; font-weight: 950; letter-spacing: 0.3px; width: fit-content; }
+        .footer-badge { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px; background: var(--klein-blue); color: #ffffff; font-weight: 950; letter-spacing: 0.6px; width: fit-content; font-size: 1.08rem; }
+        .footer-badge img { width: 26px; height: 26px; object-fit: contain; display: block; }
         #footer-home { max-width: none; padding: 0; }
-        #footer-home .footer-badge { width: 100%; justify-content: center; border-radius: 0; padding: 44px 20px; font-size: 1.22rem; letter-spacing: 0.8px; }
+        #footer-home .footer-badge { width: 100%; justify-content: center; border-radius: 0; padding: 56px 20px; font-size: 1.6rem; letter-spacing: 1.2px; }
+        #footer-home .footer-badge { gap: 18px; }
+        #footer-home .footer-badge img { width: 92px; height: 92px; }
 
         
 
@@ -268,25 +459,130 @@
 
     <div id="login-modal" class="modal-overlay">
         <div class="login-card">
-            <h2 class="login-title">考生信息录入</h2>
-            <div class="input-group">
-                <label>姓名 Name</label>
-                <input type="text" id="user-name" class="input-field" placeholder="请输入姓名">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <h2 class="login-title" id="auth-title" style="margin:0;">登录</h2>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-outline" id="auth-tab-login" onclick="setAuthView('login')" style="padding:8px 14px;">登录</button>
+                    <button class="btn btn-outline" id="auth-tab-register" onclick="setAuthView('register')" style="padding:8px 14px;">注册</button>
+                </div>
             </div>
-            <div class="input-group">
-                <label>工号 Employee ID</label>
-                <input type="text" id="user-id" class="input-field" placeholder="请输入工号">
+            <div class="login-slogan">让AI更有温度 让制作更有速度</div>
+            <div class="login-layout">
+                <div class="login-left">
+                    <div class="login-form-grid">
+                        <div class="input-group" style="margin-bottom:0;">
+                            <label>姓名</label>
+                            <input type="text" id="user-name" class="input-field" placeholder="例如：陈云">
+                        </div>
+                        <div class="input-group" style="margin-bottom:0;">
+                            <label>工号（7位数字）</label>
+                            <input type="text" id="user-id" class="input-field" placeholder="例如：2508179" inputmode="numeric" maxlength="7">
+                        </div>
+                    </div>
+                    <div id="auth-example" style="color:#6b7280; font-weight:800; font-size:0.9rem; text-align:left; margin-top: 4px;">
+                        示例填写：姓名 陈云｜工号 2508179
+                    </div>
+                    <div style="display:grid; gap:10px;">
+                        <button class="btn btn-primary" id="auth-primary-btn" onclick="submitAuth()" style="width:100%;">登录</button>
+                        <button class="btn btn-outline" onclick="guestLogin()" style="width:100%;">游客体验</button>
+                    </div>
+                    <div id="auth-hint" style="color:#6b7280; font-weight:800; font-size:0.9rem; text-align:left;"></div>
+                </div>
+                <div class="login-right">
+                    <div class="avatar-picker" id="avatar-picker" style="margin-top:0;">
+                        <label class="avatar-picker-title">选择头像</label>
+                        <div id="avatar-grid" class="avatar-grid"></div>
+                    </div>
+                    <div class="auth-aside" id="auth-aside" style="margin-top:0;">
+                        <div class="auth-aside-head">
+                            <div class="auth-aside-logo">
+                                <img src="企业logo白字透明底.png" alt="企业Logo">
+                            </div>
+                            <div>
+                                <div class="auth-aside-title">登录后可用</div>
+                                <div class="auth-aside-sub">成绩 / 错题 / 笔记 自动同步</div>
+                            </div>
+                        </div>
+                        <div class="auth-aside-list">
+                            <div class="auth-aside-item">
+                                <div class="auth-aside-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M7 20h10" />
+                                        <path d="M9 16h6" />
+                                        <path d="M8 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="auth-aside-item-title">成绩记录</div>
+                                    <div class="auth-aside-item-desc">自动保存历次考试成绩与最佳分</div>
+                                </div>
+                            </div>
+                            <div class="auth-aside-item">
+                                <div class="auth-aside-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M7 4h10a2 2 0 0 1 2 2v14" />
+                                        <path d="M5 6a2 2 0 0 1 2-2v16a2 2 0 0 0-2-2h12" />
+                                        <path d="M9 10h6" />
+                                        <path d="M9 14h5" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="auth-aside-item-title">错题本</div>
+                                    <div class="auth-aside-item-desc">练习/考试错题自动收集，可一键删除已掌握</div>
+                                </div>
+                            </div>
+                            <div class="auth-aside-item">
+                                <div class="auth-aside-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 19V6a2 2 0 0 1 2-2h9a3 3 0 0 1 3 3v12" />
+                                        <path d="M6 18h11" />
+                                        <path d="M8 8h7" />
+                                        <path d="M8 11h7" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="auth-aside-item-title">笔记本</div>
+                                    <div class="auth-aside-item-desc">沉淀学习要点与复盘总结，下次登录继续看</div>
+                                </div>
+                            </div>
+                            <div class="auth-aside-item">
+                                <div class="auth-aside-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.8V22l4-2 4 2v-7.2c1.8-1.3 3-3.4 3-5.8a7 7 0 0 0-7-7z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="auth-aside-item-title">带级徽章</div>
+                                    <div class="auth-aside-item-desc">通过考试后点亮徽章与认证信息展示</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button class="btn btn-primary" onclick="submitUserInfo()" style="width:100%;">开始考试</button>
-            <button class="btn btn-outline" onclick="closeLoginModal()" style="width:100%; margin-top:10px;">取消</button>
         </div>
     </div>
 
     <div class="container">
         <nav>
-            <div class="logo" onclick="goHome()">LEAN ACADEMY</div>
-            <div class="nav-links">
-                <span class="nav-item active" onclick="goHome()">学习中心</span>
+            <div class="brand" onclick="goHome()">
+                <div class="brand-mark">
+                    <img src="企业logo白字透明底.png" alt="企业Logo">
+                </div>
+                <div class="logo">LEAN ACADEMY</div>
+            </div>
+            <div class="nav-right">
+                <div class="nav-links">
+                    <span class="nav-item active" onclick="goHome()">学习中心</span>
+                    <span class="nav-item" onclick="openProfile()">个人中心</span>
+                </div>
+                <div id="user-chip" class="user-chip" onclick="openProfile()">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div style="display:grid; line-height:1.1;">
+                        <div class="user-name" id="nav-user-name">未登录</div>
+                        <div class="user-meta" id="nav-user-id"></div>
+                    </div>
+                </div>
             </div>
         </nav>
 
@@ -294,7 +590,7 @@
             <div class="cover-inner">
                 <h1 class="hero-title">哈尔斯带级认证学习系统</h1>
                 <p class="hero-subtitle">面向全员的精益知识体系与认证平台</p>
-                <div class="hero-slogan">让AI更有温度 让制作更有速度</div>
+                <div class="hero-slogan">2026 精益革新办</div>
 
                 <div class="mode-grid">
                     <div class="mode-card" onclick="selectMode('study')">
@@ -323,9 +619,38 @@
                         <div class="mode-caption">Practice</div>
                         <div class="mode-desc">高质量干扰项贴近现场场景，做题同时学“为什么错”，提升辨析与应用能力。</div>
                     </div>
-                    <div class="mode-card" onclick="selectMode('exam')">
+                    <div class="mode-card" onclick="selectMode('bank')">
                         <div class="mode-arrow">&gt;</div>
                         <span class="mode-num">03</span>
+                        <div class="mode-icon study" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 19V6a2 2 0 0 1 2-2h9a3 3 0 0 1 3 3v12" />
+                                <path d="M6 18h11" />
+                                <path d="M8 8h7" />
+                                <path d="M8 11h7" />
+                                <path d="M8 14h5" />
+                            </svg>
+                        </div>
+                        <div class="mode-title">题库解析</div>
+                        <div class="mode-caption">Question Bank</div>
+                        <div class="mode-desc">把题目、标准答案与解析集中整理，支持搜索与筛选，便于出题、复盘与复习。</div>
+                    </div>
+                    <div class="mode-card talent" onclick="openTalentShowcase()">
+                        <div class="mode-arrow">&gt;</div>
+                        <span class="mode-num">04</span>
+                        <div class="mode-icon practice" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </div>
+                        <div class="mode-title">带级人才</div>
+                        <div class="mode-caption">Certified Talents</div>
+                        <div class="mode-desc">展示已认证带级人才名单，并对认证三科以上人员展示绿带徽章。</div>
+                    </div>
+                    <div class="mode-card mode-exam" onclick="selectMode('exam')">
+                        <div class="mode-arrow">&gt;</div>
+                        <span class="mode-num">05</span>
                         <div class="mode-icon exam" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="6" y="3" width="12" height="14" rx="2" />
@@ -337,9 +662,10 @@
                         </div>
                         <div class="mode-title">资格认证</div>
                         <div class="mode-caption">Certification</div>
-                        <div class="mode-desc">标准化考试流程：20题 / 80分及格，倒计时与自动评分，输出可追溯的认证结果。</div>
+                        <div class="mode-desc">标准化考试流程：20题 / 90分及格，倒计时与自动评分，输出可追溯的认证结果。</div>
                     </div>
                 </div>
+                <div id="memo-modules" style="margin-top: 18px;"></div>
             </div>
         </section>
 
@@ -391,6 +717,154 @@
             </div>
             <div id="study-content" class="knowledge-content">
                 </div>
+        </section>
+
+        <section id="bank-page" class="content-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2 id="bank-subject-title">题库解析</h2>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-outline" onclick="backToSubject()">返回目录</button>
+                    <button class="btn btn-outline" onclick="goHome()">返回首页</button>
+                </div>
+            </div>
+            <div class="knowledge-content" style="padding: 26px;">
+                <div class="bank-controls">
+                    <input id="bank-search" class="bank-search" placeholder="搜索：题目 / 答案 / 解析关键词" />
+                    <select id="bank-type-filter" class="bank-select">
+                        <option value="ALL">全部题型</option>
+                        <option value="MCQ">选择题</option>
+                        <option value="TF">判断题</option>
+                    </select>
+                    <label class="bank-toggle">
+                        <input id="bank-show-answer" type="checkbox" checked />
+                        显示答案与解析
+                    </label>
+                </div>
+                <div class="bank-meta" id="bank-meta"></div>
+                <div class="bank-list" id="bank-list"></div>
+                <div style="display:flex; justify-content:center; margin-top: 18px;">
+                    <button class="btn btn-outline" id="bank-load-more" onclick="bankLoadMore()">加载更多</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="talent-page" class="content-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2>带级人才展示</h2>
+                    <p style="color:#666; margin-top:5px;">已认证带级人才名单与年度绿带徽章获得者</p>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-outline" onclick="goHome()">返回首页</button>
+                </div>
+            </div>
+            <div class="knowledge-content" style="padding: 26px;">
+                <div class="talent-tabs">
+                    <button class="btn btn-outline" id="tab-talent-list" onclick="switchTalentTab('list')">人才名单</button>
+                    <button class="btn btn-outline" id="tab-talent-badges" onclick="switchTalentTab('badges')">绿带徽章获得者</button>
+                </div>
+
+                <div id="talent-panel-list">
+                    <div class="talent-controls">
+                        <input id="talent-search" class="talent-search" placeholder="搜索姓名 / 部门 / 带级" />
+                        <select id="talent-dept" class="talent-select"></select>
+                        <select id="talent-belt" class="talent-select"></select>
+                    </div>
+                    <div class="talent-meta" id="talent-meta"></div>
+                    <div class="talent-grid" id="talent-grid"></div>
+                </div>
+
+                <div id="talent-panel-badges" style="display:none;">
+                    <div class="talent-meta" id="badge-meta"></div>
+                    <div class="talent-grid" id="badge-grid"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="profile-page" class="content-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2>个人中心</h2>
+                    <p style="color:#666; margin-top:5px;">个人信息、认证情况与成绩记录</p>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-outline" onclick="goHome()">返回首页</button>
+                    <button class="btn btn-outline" onclick="deleteAccount()" style="border-color:#dc3545; color:#dc3545;">账号注销</button>
+                    <button class="btn btn-outline" onclick="logout()">退出登录</button>
+                </div>
+            </div>
+            <div class="knowledge-content" style="padding: 26px;">
+                <div id="profile-summary" class="talent-card" style="margin-bottom: 14px;"></div>
+                <div style="display:grid; gap: 12px;">
+                    <div class="talent-card">
+                        <div class="talent-name">我的成绩</div>
+                        <div class="talent-dept" id="profile-exam-meta"></div>
+                        <div id="profile-exam-list"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="memo-page" class="content-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2>错题本 & 笔记本</h2>
+                    <p style="color:#666; margin-top:5px;">记录错题与个人笔记（登录后可跨设备保存）</p>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-outline" onclick="goHome()">返回首页</button>
+                </div>
+            </div>
+            <div class="knowledge-content" style="padding: 26px;">
+                <div class="talent-tabs">
+                    <button class="btn btn-outline" id="tab-memo-wrong" onclick="switchMemoTab('wrong')">错题本</button>
+                    <button class="btn btn-outline" id="tab-memo-notes" onclick="switchMemoTab('notes')">笔记本</button>
+                </div>
+
+                <div id="memo-guest-tip" class="talent-card" style="display:none; margin-top: 12px;">
+                    <div class="talent-name">提示</div>
+                    <div class="talent-dept" style="margin-top: 6px;">当前为游客模式：错题本与笔记本仅支持注册用户使用，并可同步保存到数据库。</div>
+                    <div style="margin-top: 12px;">
+                        <button class="btn btn-primary" onclick="openLoginModal(openMemoCenter)">去登录/注册</button>
+                    </div>
+                </div>
+
+                <div id="memo-panel-wrong" style="margin-top: 12px;">
+                    <div style="display:flex; gap:10px; flex-wrap: wrap; align-items:center;">
+                        <input id="wrong-search" class="bank-search" placeholder="搜索：题目关键词 / 科目" style="max-width: 360px;" />
+                        <select id="wrong-subject" class="bank-select" style="max-width: 220px;">
+                            <option value="ALL">全部科目</option>
+                            <option value="DM">DM</option>
+                            <option value="PSP">PSP</option>
+                            <option value="SW">SW</option>
+                            <option value="VSM">VSM</option>
+                            <option value="5S">5S</option>
+                            <option value="TIMWOODS">TIMWOODS</option>
+                        </select>
+                        <button class="btn btn-outline" onclick="loadWrongBook()">刷新</button>
+                    </div>
+                    <div class="talent-meta" id="wrong-meta"></div>
+                    <div id="wrong-list" style="display:grid; gap: 12px; margin-top: 12px;"></div>
+                </div>
+
+                <div id="memo-panel-notes" style="display:none; margin-top: 12px;">
+                    <div class="talent-card" style="margin-bottom: 12px;">
+                        <div class="talent-name" id="note-form-title">新建笔记</div>
+                        <div style="display:grid; gap:10px; margin-top: 10px;">
+                            <input id="note-title" class="input-field" placeholder="标题（例如：5Why 的常见误区）" />
+                            <textarea id="note-content" class="input-field" placeholder="记录你的精益知识、现场观察、复盘要点..." style="min-height: 140px; resize: vertical;"></textarea>
+                            <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                                <button class="btn btn-primary" id="note-save-btn" onclick="saveNote()">保存</button>
+                                <button class="btn btn-outline" id="note-cancel-btn" onclick="resetNoteForm()" style="display:none;">取消编辑</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="talent-meta" id="note-meta"></div>
+                    <div id="note-list" style="display:grid; gap: 12px; margin-top: 12px;"></div>
+                </div>
+            </div>
         </section>
 
         <section id="quiz-page" class="content-section">
@@ -458,7 +932,7 @@
 
         <footer class="site-footer" id="site-footer">
             <div class="footer-inner" id="footer-home">
-                <div class="footer-badge">© 2026 哈尔斯集团精益革新办</div>
+                <div class="footer-badge"><img src="企业logo白字透明底.png" alt="企业Logo">© 2026 哈尔斯集团精益革新办</div>
             </div>
             <div class="footer-inner" id="footer-simple" style="display:none; padding: 22px 20px;">
                 <div style="display:flex; justify-content: space-between; align-items:center; gap: 14px; flex-wrap: wrap;">
@@ -485,15 +959,120 @@
                     body: JSON.stringify({ employeeId, name })
                 });
                 const data = await response.json();
-                if (data.success) {
-                    return data.user;
-                } else {
-                    console.error('登录失败:', data.error);
-                    return null;
-                }
+                if (data && data.success) return { ok: true, user: data.user, error: null };
+                return { ok: false, user: null, error: (data && data.error) || '登录失败' };
             } catch (error) {
                 console.error('登录请求失败:', error);
-                return null;
+                return { ok: false, user: null, error: '登录请求失败' };
+            }
+        }
+
+        async function apiRegister(employeeId, name, avatar) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ employeeId, name, avatar })
+                });
+                const data = await response.json();
+                if (data && data.success) return { ok: true, user: data.user, error: null };
+                return { ok: false, user: null, error: (data && data.error) || '注册失败' };
+            } catch (error) {
+                console.error('注册请求失败:', error);
+                return { ok: false, user: null, error: '注册请求失败' };
+            }
+        }
+
+        async function apiDeleteAccount(payload) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/delete-account`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload || {})
+                });
+                const data = await response.json();
+                return { ok: response.ok, data };
+            } catch (error) {
+                return { ok: false, data: { error: String(error && error.message ? error.message : error) } };
+            }
+        }
+
+        async function apiGetWrongQuestions(userId, employeeId, subject) {
+            try {
+                const qs = new URLSearchParams({ userId: String(userId), employeeId: String(employeeId) });
+                if (subject && subject !== 'ALL') qs.set('subject', subject);
+                const response = await fetch(`${API_BASE_URL}/api/wrong-questions?${qs.toString()}`);
+                const data = await response.json();
+                return data.success ? data.items : [];
+            } catch {
+                return [];
+            }
+        }
+
+        async function apiUpsertWrongQuestion(payload) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/wrong-questions/upsert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload || {})
+                });
+                const data = await response.json();
+                return { ok: response.ok, data };
+            } catch (error) {
+                return { ok: false, data: { error: String(error && error.message ? error.message : error) } };
+            }
+        }
+
+        async function apiDeleteWrongQuestion(payload) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/wrong-questions/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload || {})
+                });
+                const data = await response.json();
+                return { ok: response.ok, data };
+            } catch (error) {
+                return { ok: false, data: { error: String(error && error.message ? error.message : error) } };
+            }
+        }
+
+        async function apiGetNotes(userId, employeeId) {
+            try {
+                const qs = new URLSearchParams({ userId: String(userId), employeeId: String(employeeId) });
+                const response = await fetch(`${API_BASE_URL}/api/notes?${qs.toString()}`);
+                const data = await response.json();
+                return data.success ? data.items : [];
+            } catch {
+                return [];
+            }
+        }
+
+        async function apiUpsertNote(payload) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/notes/upsert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload || {})
+                });
+                const data = await response.json();
+                return { ok: response.ok, data };
+            } catch (error) {
+                return { ok: false, data: { error: String(error && error.message ? error.message : error) } };
+            }
+        }
+
+        async function apiDeleteNote(payload) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/notes/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload || {})
+                });
+                const data = await response.json();
+                return { ok: response.ok, data };
+            } catch (error) {
+                return { ok: false, data: { error: String(error && error.message ? error.message : error) } };
             }
         }
 
@@ -512,9 +1091,10 @@
             }
         }
 
-        async function apiGetUserExams(userId) {
+        async function apiGetUserExams(userId, employeeId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/user-exams?userId=${userId}`);
+                const qs = new URLSearchParams({ userId: String(userId), employeeId: String(employeeId) });
+                const response = await fetch(`${API_BASE_URL}/api/user-exams?${qs.toString()}`);
                 const data = await response.json();
                 return data.success ? data.records : [];
             } catch (error) {
@@ -2054,8 +2634,186 @@
             timer: null,
             timeLeft: 0,
             examAnswers: [],
-            userInfo: { name: "", id: "", userId: null } // 新增考生信息，userId为数据库中的用户ID
+            userInfo: { auth: null, name: "", id: "", userId: null, avatar: "a1" }
         };
+
+        const AUTH_STORAGE_KEY = 'haers_user_v1';
+        let postLoginCallback = null;
+        let authView = 'login';
+
+        const AVATAR_OPTIONS = [
+            { id: 'a1', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7v1"/></svg>' },
+            { id: 'a2', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-3-3.87"/><path d="M4 21v-2a4 4 0 0 1 3-3.87"/><circle cx="12" cy="7" r="4"/><path d="M16 21v-1a4 4 0 0 0-4-4h0a4 4 0 0 0-4 4v1"/></svg>' },
+            { id: 'a3', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7 7 .5-5.5 4.5 1.8 7.5L12 18l-6.3 4 1.8-7.5L2 9.5 9 9l3-7z"/></svg>' },
+            { id: 'a4', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.3l5-.7L12 3z"/><path d="M7 21h10"/></svg>' },
+            { id: 'a5', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2 4 4L19 4l2 2L9 18 3 12z"/></svg>' },
+            { id: 'a6', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.8V22l4-2 4 2v-7.2c1.8-1.3 3-3.4 3-5.8a7 7 0 0 0-7-7z"/></svg>' }
+        ];
+
+        function getAvatarSvg(id) {
+            const key = String(id || '').trim();
+            const found = AVATAR_OPTIONS.find(x => x.id === key);
+            return found ? found.svg : AVATAR_OPTIONS[0].svg;
+        }
+
+        function renderAvatarPicker(selectedId) {
+            const grid = document.getElementById('avatar-grid');
+            if (!grid) return;
+            const current = String(selectedId || AVATAR_OPTIONS[0].id);
+            grid.innerHTML = AVATAR_OPTIONS.map(opt => `
+                <button type="button" class="avatar-option ${opt.id === current ? 'selected' : ''}" data-avatar="${opt.id}" onclick="selectAvatar('${opt.id}')">
+                    ${opt.svg}
+                </button>
+            `).join('');
+        }
+
+        function selectAvatar(id) {
+            appState.userInfo.avatar = String(id || AVATAR_OPTIONS[0].id);
+            renderAvatarPicker(appState.userInfo.avatar);
+        }
+
+        function isLoggedIn() {
+            return !!(appState.userInfo && (appState.userInfo.auth === 'guest' || appState.userInfo.userId));
+        }
+
+        function isGuest() {
+            return !!(appState.userInfo && appState.userInfo.auth === 'guest');
+        }
+
+        function isRegistered() {
+            return !!(appState.userInfo && appState.userInfo.auth === 'user' && appState.userInfo.userId);
+        }
+
+        function updateNavUser() {
+            const chip = document.getElementById('user-chip');
+            const nameEl = document.getElementById('nav-user-name');
+            const idEl = document.getElementById('nav-user-id');
+            const avatarEl = document.getElementById('user-avatar');
+            if (!chip || !nameEl || !idEl || !avatarEl) return;
+
+            if (!isLoggedIn()) {
+                chip.style.display = 'none';
+                nameEl.textContent = '未登录';
+                idEl.textContent = '';
+                avatarEl.innerHTML = getAvatarSvg(appState.userInfo.avatar || AVATAR_OPTIONS[0].id);
+                renderMemoModules();
+                return;
+            }
+
+            chip.style.display = 'inline-flex';
+            nameEl.textContent = appState.userInfo.name || '已登录';
+            idEl.textContent = isGuest() ? '游客' : (appState.userInfo.id ? `工号 ${appState.userInfo.id}` : '');
+            avatarEl.innerHTML = getAvatarSvg(appState.userInfo.avatar || AVATAR_OPTIONS[0].id);
+            renderMemoModules();
+        }
+
+        function saveSession() {
+            if (!isRegistered()) return;
+            const payload = {
+                userId: appState.userInfo.userId,
+                id: appState.userInfo.id,
+                name: appState.userInfo.name,
+                avatar: appState.userInfo.avatar || AVATAR_OPTIONS[0].id
+            };
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(payload));
+        }
+
+        function loadSession() {
+            try {
+                const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                if (!data || !data.userId || !data.id || !data.name) return false;
+                appState.userInfo = { auth: 'user', userId: data.userId, id: data.id, name: data.name, avatar: data.avatar || AVATAR_OPTIONS[0].id };
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        function setAuthView(view) {
+            authView = view === 'register' ? 'register' : 'login';
+            const title = document.getElementById('auth-title');
+            const btn = document.getElementById('auth-primary-btn');
+            const tabLogin = document.getElementById('auth-tab-login');
+            const tabRegister = document.getElementById('auth-tab-register');
+            const avatarPicker = document.getElementById('avatar-picker');
+            const aside = document.getElementById('auth-aside');
+            const hint = document.getElementById('auth-hint');
+            const example = document.getElementById('auth-example');
+
+            const setActive = (el, on) => {
+                if (!el) return;
+                el.classList.toggle('btn-primary', on);
+                el.classList.toggle('btn-outline', !on);
+            };
+
+            setActive(tabLogin, authView === 'login');
+            setActive(tabRegister, authView === 'register');
+            if (title) title.textContent = authView === 'register' ? '注册' : '登录';
+            if (btn) btn.textContent = authView === 'register' ? '注册并登录' : '登录';
+            if (avatarPicker) avatarPicker.style.display = authView === 'register' ? 'block' : 'none';
+            if (aside) aside.style.display = authView === 'login' ? 'grid' : 'none';
+            if (example) example.style.display = authView === 'register' ? 'block' : 'none';
+
+            if (hint) {
+                const linkStyle = "cursor:pointer; color: var(--klein-blue); font-weight: 950; text-decoration: underline;";
+                hint.innerHTML = authView === 'login'
+                    ? `没有账号？<span style="${linkStyle}" onclick="setAuthView('register')">去注册</span>。`
+                    : `已有账号？<span style="${linkStyle}" onclick="setAuthView('login')">去登录</span>。注册后可同步保存成绩、错题本与笔记本。`;
+            }
+
+            if (authView === 'register') renderAvatarPicker(appState.userInfo.avatar || AVATAR_OPTIONS[0].id);
+        }
+
+        function openLoginModal(callback) {
+            postLoginCallback = typeof callback === 'function' ? callback : null;
+            const modal = document.getElementById('login-modal');
+            if (modal) modal.style.display = 'flex';
+            setAuthView('login');
+            setTimeout(() => {
+                const el = document.getElementById('user-name');
+                if (el) el.focus();
+            }, 50);
+        }
+
+        function ensureAuth(callback) {
+            if (isLoggedIn()) return true;
+            openLoginModal(callback);
+            return false;
+        }
+
+        function logout() {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+            appState.userInfo = { auth: null, name: "", id: "", userId: null, avatar: AVATAR_OPTIONS[0].id };
+            updateNavUser();
+            goHome();
+            openLoginModal();
+        }
+
+        async function deleteAccount() {
+            if (!ensureAuth(deleteAccount)) return;
+            if (!isRegistered()) {
+                alert('游客模式无法注销账号，请先登录/注册。');
+                openLoginModal(deleteAccount);
+                return;
+            }
+            const ok = confirm('确认要注销账号吗？\n\n注销后将删除：个人信息、全部考试成绩与错题记录。\n该操作不可恢复。');
+            if (!ok) return;
+
+            const payload = {
+                userId: appState.userInfo.userId,
+                employeeId: appState.userInfo.id,
+                name: appState.userInfo.name
+            };
+            const res = await apiDeleteAccount(payload);
+            if (res.ok && res.data && res.data.success) {
+                alert('账号已注销。');
+                logout();
+                return;
+            }
+            alert(`注销失败：${(res.data && (res.data.error || res.data.message)) || '请稍后重试'}`);
+        }
 
         function setFooterVariant(variant) {
             const home = document.getElementById('footer-home');
@@ -2071,8 +2829,9 @@
         }
 
         function selectMode(mode) {
+            if (!ensureAuth()) return;
             appState.mode = mode;
-            const titles = { 'study': '知识学习', 'practice': '强化练习', 'exam': '正式考试' };
+            const titles = { 'study': '知识学习', 'practice': '强化练习', 'exam': '正式考试', 'bank': '题库解析' };
             document.getElementById('mode-title').textContent = titles[mode] + " - 选择科目";
             document.getElementById('current-mode-display').textContent = titles[mode];
             
@@ -2087,38 +2846,870 @@
             document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
             document.getElementById('hero-page').style.display = 'block';
             document.getElementById('timer-box').style.display = 'none';
-            document.getElementById('login-modal').style.display = 'none'; // 确保弹窗关闭
+            if (isLoggedIn()) document.getElementById('login-modal').style.display = 'none';
             setFooterVariant('home');
             window.scrollTo(0,0);
         }
 
         function backToSubject() {
             document.getElementById('study-page').style.display = 'none';
+            document.getElementById('bank-page').style.display = 'none';
             document.getElementById('subject-page').style.display = 'block';
             setFooterVariant('simple');
         }
 
         function startActivity(subj) {
+            if (!ensureAuth(() => startActivity(subj))) return;
             appState.subject = subj;
-            
-            // 只有考试模式需要登录
-            if (appState.mode === 'exam') {
-                document.getElementById('login-modal').style.display = 'flex';
-                // 聚焦第一个输入框
-                setTimeout(() => document.getElementById('user-name').focus(), 100);
-            } else {
-                document.getElementById('subject-page').style.display = 'none';
-                if (appState.mode === 'study') initStudy();
-                else if (appState.mode === 'practice') initPractice();
-            }
+
+            document.getElementById('subject-page').style.display = 'none';
+            if (appState.mode === 'study') initStudy();
+            else if (appState.mode === 'practice') initPractice();
+            else if (appState.mode === 'bank') initBank();
+            else if (appState.mode === 'exam') initExam();
             setFooterVariant('simple');
         }
 
+        const bankState = {
+            items: [],
+            filtered: [],
+            visibleCount: 40,
+            showAnswer: true,
+            type: 'ALL',
+            keyword: ''
+        };
+
+        function stripLeadingAnswer(expl) {
+            const s = String(expl || '');
+            return s.replace(/^正确答案：.*?<br><br>/, '');
+        }
+
+        function buildBankItems(subj) {
+            const items = [];
+            const mcqSeeds = QUESTION_SEEDS[subj] || [];
+            const tfSeeds = TF_SEEDS[subj] || [];
+
+            mcqSeeds.forEach((seed, idx) => {
+                const rawExpl = sanitizeText(seed.expl || seed.e || seed.explanation || '') || buildMcqExplanation(subj, seed);
+                const expl = seed.expl || seed.e || seed.explanation ? sanitizeText(seed.expl || seed.e || seed.explanation || '') : stripLeadingAnswer(rawExpl);
+                items.push({
+                    no: idx + 1,
+                    type: 'MCQ',
+                    question: sanitizeText(seed.q),
+                    answer: sanitizeText(seed.a),
+                    explanation: expl
+                });
+            });
+
+            const baseNo = items.length;
+            tfSeeds.forEach((seed, idx) => {
+                items.push({
+                    no: baseNo + idx + 1,
+                    type: 'TF',
+                    question: sanitizeText(seed.q),
+                    answer: seed.a === true ? '正确' : '错误',
+                    explanation: sanitizeText(seed.expl || '')
+                });
+            });
+
+            return items;
+        }
+
+        function bankApplyFilter() {
+            const keyword = normalizeWhitespace(bankState.keyword).toLowerCase();
+            const type = bankState.type;
+
+            bankState.filtered = bankState.items.filter(item => {
+                if (type !== 'ALL' && item.type !== type) return false;
+                if (!keyword) return true;
+                const hay = `${item.question} ${item.answer} ${item.explanation}`.toLowerCase();
+                return hay.includes(keyword);
+            });
+        }
+
+        function bankRender() {
+            const list = document.getElementById('bank-list');
+            const meta = document.getElementById('bank-meta');
+            const loadMoreBtn = document.getElementById('bank-load-more');
+            const showAnswer = bankState.showAnswer;
+
+            const total = bankState.filtered.length;
+            const shown = Math.min(bankState.visibleCount, total);
+            meta.textContent = `共 ${total} 题｜已显示 ${shown} 题`;
+
+            list.innerHTML = bankState.filtered.slice(0, shown).map((item, idx) => {
+                const q = escapeHtml(item.question);
+                const a = escapeHtml(item.answer);
+                const expl = item.explanation ? item.explanation : '';
+
+                const answerHtml = showAnswer ? `<div class="bank-a">标准答案：${a}</div>` : '';
+                const explHtml = showAnswer && expl ? `<div class="bank-expl">解析：${expl}</div>` : '';
+
+                const typeLabel = item.type === 'MCQ' ? '选择题' : '判断题';
+                const noLabel = idx + 1;
+
+                return `
+                    <div class="bank-item">
+                        <div class="bank-item-head">
+                            <div class="bank-badges">
+                                <span class="bank-badge no">#${noLabel}</span>
+                                <span class="bank-badge type">${typeLabel}</span>
+                            </div>
+                        </div>
+                        <div class="bank-q">${q}</div>
+                        ${answerHtml}
+                        ${explHtml}
+                    </div>
+                `;
+            }).join('');
+
+            loadMoreBtn.style.display = shown < total ? 'inline-flex' : 'none';
+        }
+
+        function bankLoadMore() {
+            bankState.visibleCount += 40;
+            bankRender();
+        }
+
+        function initBank() {
+            document.getElementById('bank-page').style.display = 'block';
+            document.getElementById('bank-subject-title').textContent = `${KNOWLEDGE_BASE[appState.subject].title} - 题库解析`;
+
+            bankState.items = buildBankItems(appState.subject);
+            bankState.visibleCount = 40;
+            bankState.keyword = '';
+            bankState.type = 'ALL';
+            bankState.showAnswer = true;
+
+            const search = document.getElementById('bank-search');
+            const typeSelect = document.getElementById('bank-type-filter');
+            const toggle = document.getElementById('bank-show-answer');
+
+            search.value = '';
+            typeSelect.value = 'ALL';
+            toggle.checked = true;
+
+            search.oninput = (e) => {
+                bankState.keyword = e.target.value || '';
+                bankApplyFilter();
+                bankState.visibleCount = 40;
+                bankRender();
+            };
+
+            typeSelect.onchange = (e) => {
+                bankState.type = e.target.value || 'ALL';
+                bankApplyFilter();
+                bankState.visibleCount = 40;
+                bankRender();
+            };
+
+            toggle.onchange = (e) => {
+                bankState.showAnswer = !!e.target.checked;
+                bankRender();
+            };
+
+            bankApplyFilter();
+            bankRender();
+            window.scrollTo(0,0);
+        }
+
+        const CERTIFIED_TALENTS = [
+            { dept: '一分厂', name: '万海', belt: '绿带' },
+            { dept: '二分厂', name: '于成飞', belt: '绿带' },
+            { dept: '临安基地', name: '盛鑫泷', belt: '绿带' },
+            { dept: '二分厂', name: '李波', belt: '绿带' },
+            { dept: '模塑厂', name: '李鹏辉', belt: '绿带' },
+            { dept: '模塑厂', name: '吴宗禄', belt: '绿带' },
+            { dept: '模塑厂', name: '徐雕', belt: '绿带' },
+            { dept: '一分厂', name: '龙群勇', belt: '绿带' },
+            { dept: '一分厂', name: '龙奥湾', belt: '绿带' },
+            { dept: '一分厂', name: '郭秀峰', belt: '绿带' },
+            { dept: '二分厂', name: '程玉林', belt: '绿带' },
+            { dept: '模塑厂', name: '孙柏成', belt: '绿带' },
+            { dept: '泰哈', name: '刘进伦', belt: '绿带' },
+            { dept: '二分厂', name: '刘波', belt: '绿带' },
+            { dept: '二分厂', name: '欧宇涛', belt: '绿带' },
+            { dept: '模塑厂', name: '郭世良', belt: '绿带' },
+            { dept: '模塑厂', name: '周君', belt: '绿带' },
+            { dept: '模塑厂', name: '谭联明', belt: '绿带' },
+            { dept: '二分厂', name: '刘礼彬', belt: '绿带' },
+            { dept: '二分厂', name: '张国', belt: '绿带' },
+            { dept: '二分厂', name: '徐海', belt: '绿带' },
+            { dept: '一分厂', name: '胡健', belt: '绿带' },
+            { dept: '一分厂', name: '肖淋', belt: '绿带' },
+            { dept: '一分厂', name: '吴潇男', belt: '绿带' },
+            { dept: '临安基地', name: '王瓜亮', belt: '绿带' },
+            { dept: '二分厂', name: '武虹', belt: '绿带' },
+            { dept: '一分厂', name: '兰国文', belt: '绿带' },
+            { dept: '一分厂', name: '马寅杰', belt: '绿带' },
+            { dept: '一分厂', name: '蒋志敏', belt: '绿带' },
+            { dept: '二分厂', name: '吕涛', belt: '绿带' },
+            { dept: '临安基地', name: '张治国', belt: '绿带' },
+            { dept: '二分厂', name: '叶传青', belt: '绿带' },
+            { dept: '临安基地', name: '杨强', belt: '绿带' },
+            { dept: '临安基地', name: '柯细维', belt: '绿带' },
+            { dept: '临安基地', name: '焦吉平', belt: '绿带' },
+            { dept: '临安基地', name: '孙运生', belt: '绿带' },
+            { dept: '临安基地', name: '王建雄', belt: '绿带' },
+            { dept: '模塑厂', name: '刘圣权', belt: '绿带' },
+            { dept: '一分厂', name: '徐健', belt: '绿带' },
+            { dept: '一分厂', name: '乔玉清', belt: '绿带' },
+            { dept: '模塑厂', name: '门光辉', belt: '绿带' },
+            { dept: '一分厂', name: '杨旋伟', belt: '绿带' },
+            { dept: '临安基地', name: '陈金星', belt: '绿带' },
+            { dept: '临安基地', name: '郑智彬', belt: '绿带' },
+            { dept: '一分厂', name: '林寒', belt: '绿带' },
+            { dept: '临安基地', name: '苗帅', belt: '绿带' },
+            { dept: '临安基地', name: '郭宁波', belt: '绿带' },
+            { dept: '临安基地', name: '朱立平2', belt: '绿带' },
+            { dept: '模塑厂', name: '陈烨锋', belt: '绿带' },
+            { dept: '模塑厂', name: '邓英', belt: '绿带' },
+            { dept: '模塑厂', name: '廖炳威', belt: '绿带' },
+            { dept: '模塑厂', name: '宋磊建', belt: '绿带' },
+            { dept: '模塑厂', name: '刘勇珍', belt: '绿带' },
+            { dept: '临安基地', name: '王文龙', belt: '绿带' },
+            { dept: '临安基地', name: '周冬佳', belt: '绿带' },
+            { dept: '一分厂', name: '祝灿丽', belt: '绿带' },
+            { dept: '一分厂', name: '吉永坚', belt: '绿带' },
+            { dept: '一分厂', name: '杨润', belt: '绿带' },
+            { dept: '二分厂', name: '张清贵', belt: '绿带' },
+            { dept: '二分厂', name: '丁祝芬', belt: '绿带' },
+            { dept: '临安基地', name: '虞元林', belt: '绿带' },
+            { dept: '二分厂', name: '袁先兵', belt: '绿带' },
+            { dept: '二分厂', name: '张四培', belt: '绿带' },
+            { dept: '二分厂', name: '王跃峰', belt: '绿带' },
+            { dept: '二分厂', name: '陈勇2', belt: '绿带' },
+            { dept: '二分厂', name: '涂立', belt: '绿带' },
+            { dept: '模塑厂', name: '武丰', belt: '绿带' },
+            { dept: '模塑厂', name: '郑景渭', belt: '绿带' },
+            { dept: '模塑厂', name: '唐启俊', belt: '绿带' },
+            { dept: '模塑厂', name: '梁留浩', belt: '绿带' },
+            { dept: '一分厂', name: '熊俐', belt: '绿带' },
+            { dept: '临安基地', name: '徐毓斌', belt: '绿带' },
+            { dept: '二分厂', name: '包伟俊', belt: '绿带' },
+            { dept: '二分厂', name: '李佳', belt: '绿带' },
+            { dept: '临安基地', name: '张连杰', belt: '绿带' },
+            { dept: '二分厂', name: '陈豪', belt: '绿带' },
+            { dept: '一分厂', name: '王百顺', belt: '绿带' },
+            { dept: '二分厂', name: '黄文希', belt: '绿带' },
+            { dept: '模塑厂', name: '许达万', belt: '绿带' },
+            { dept: '模塑厂', name: '吴玉骏', belt: '绿带' },
+            { dept: '二分厂', name: '杨增寿', belt: '绿带' },
+            { dept: '一分厂', name: '叶杰昂', belt: '绿带' },
+            { dept: '临安基地', name: '段志平', belt: '绿带' },
+            { dept: '一分厂', name: '曹蕾', belt: '绿带' },
+            { dept: '二分厂', name: '余道文', belt: '绿带' },
+            { dept: '二分厂', name: '翁芝花', belt: '绿带' },
+            { dept: '一分厂', name: '董梅', belt: '绿带' },
+            { dept: '模塑厂', name: '孙柏成', belt: '黑带' },
+            { dept: '一分厂', name: '龚成才', belt: '绿带' },
+            { dept: '模塑厂', name: '周键', belt: '绿带' },
+            { dept: '模塑厂', name: '张腾宇', belt: '绿带' },
+            { dept: '二分厂', name: '李军', belt: '绿带' },
+            { dept: '一分厂', name: '程松涛', belt: '绿带' },
+            { dept: '一分厂', name: '杨斌', belt: '绿带' },
+            { dept: '模塑厂', name: '易进', belt: '绿带' },
+            { dept: '二分厂', name: '邵会阳', belt: '绿带' },
+            { dept: '二分厂', name: '王世文', belt: '绿带' },
+            { dept: '二分厂', name: '杨伟乾', belt: '绿带' },
+            { dept: '二分厂', name: '石小虎', belt: '绿带' }
+        ];
+
+        const BADGE_AWARDEES_2025 = [
+            { name: '李波', code: 'HBS001', dept: '精益革新办' },
+            { name: '李鹏辉', code: 'HBS002', dept: '精益革新办' },
+            { name: '孙柏成', code: 'HBS003', dept: '精益革新办' },
+            { name: '杨强', code: 'HBS004', dept: '精益革新办' },
+            { name: '乔玉清', code: 'HBS005', dept: '精益革新办' },
+            { name: '涂立', code: 'HBS006', dept: '精益革新办' },
+            { name: '梁留浩', code: 'HBS007', dept: '精益革新办' },
+            { name: '唐启俊', code: 'HBS008', dept: '精益革新办' },
+            { name: '余道文', code: 'HBS009', dept: '精益革新办' },
+            { name: '廖炳威', code: 'HBS010', dept: '精益革新办' }
+        ];
+
+        const beltClassName = (belt) => {
+            const b = String(belt || '');
+            if (b.includes('黑')) return 'black';
+            return 'green';
+        };
+
+        const talentState = {
+            tab: 'list',
+            keyword: '',
+            dept: 'ALL',
+            belt: 'ALL'
+        };
+
+        function switchTalentTab(tab) {
+            talentState.tab = tab;
+            const listBtn = document.getElementById('tab-talent-list');
+            const badgeBtn = document.getElementById('tab-talent-badges');
+            const panelList = document.getElementById('talent-panel-list');
+            const panelBadges = document.getElementById('talent-panel-badges');
+
+            const activeStyle = (btn, on) => {
+                btn.classList.toggle('btn-primary', on);
+                btn.classList.toggle('btn-outline', !on);
+            };
+
+            activeStyle(listBtn, tab === 'list');
+            activeStyle(badgeBtn, tab === 'badges');
+            panelList.style.display = tab === 'list' ? 'block' : 'none';
+            panelBadges.style.display = tab === 'badges' ? 'block' : 'none';
+        }
+
+        function openTalentShowcase() {
+            if (!ensureAuth(openTalentShowcase)) return;
+            document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+            document.getElementById('hero-page').style.display = 'none';
+            document.getElementById('talent-page').style.display = 'block';
+            setFooterVariant('simple');
+            initTalentShowcase();
+            window.scrollTo(0,0);
+        }
+
+        function renderTalentFilters() {
+            const deptSelect = document.getElementById('talent-dept');
+            const beltSelect = document.getElementById('talent-belt');
+
+            const depts = Array.from(new Set(CERTIFIED_TALENTS.map(x => x.dept))).sort((a, b) => a.localeCompare(b, 'zh-CN'));
+            const belts = Array.from(new Set(CERTIFIED_TALENTS.map(x => x.belt))).sort((a, b) => a.localeCompare(b, 'zh-CN'));
+
+            deptSelect.innerHTML = ['<option value="ALL">全部部门</option>', ...depts.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`)].join('');
+            beltSelect.innerHTML = ['<option value="ALL">全部带级</option>', ...belts.map(b => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`)].join('');
+        }
+
+        function filterTalents() {
+            const keyword = normalizeWhitespace(talentState.keyword).toLowerCase();
+            const dept = talentState.dept;
+            const belt = talentState.belt;
+
+            return CERTIFIED_TALENTS.filter(t => {
+                if (dept !== 'ALL' && t.dept !== dept) return false;
+                if (belt !== 'ALL' && t.belt !== belt) return false;
+                if (!keyword) return true;
+                const hay = `${t.dept} ${t.name} ${t.belt}`.toLowerCase();
+                return hay.includes(keyword);
+            });
+        }
+
+        function buildBadgeSet() {
+            const set = new Set();
+            BADGE_AWARDEES_2025.forEach(x => set.add(String(x.name || '').trim()));
+            return set;
+        }
+
+        function renderTalentList() {
+            const grid = document.getElementById('talent-grid');
+            const meta = document.getElementById('talent-meta');
+
+            const filtered = filterTalents();
+            const badgeSet = buildBadgeSet();
+            const total = filtered.length;
+
+            const byBelt = {};
+            filtered.forEach(t => {
+                byBelt[t.belt] = (byBelt[t.belt] || 0) + 1;
+            });
+            const beltSummary = Object.entries(byBelt)
+                .sort((a, b) => a[0].localeCompare(b[0], 'zh-CN'))
+                .map(([k, v]) => `${k} ${v} 人`)
+                .join('｜');
+
+            meta.textContent = `共 ${total} 人${beltSummary ? '｜' + beltSummary : ''}`;
+
+            grid.innerHTML = filtered.map(t => {
+                const dept = escapeHtml(t.dept);
+                const name = escapeHtml(t.name);
+                const belt = escapeHtml(t.belt);
+                const beltClass = beltClassName(t.belt);
+                const badgeTag = badgeSet.has(String(t.name || '').trim()) ? `<span class="talent-tag badge">绿带徽章</span>` : '';
+                return `
+                    <div class="talent-card">
+                        <div class="talent-head">
+                            <div class="talent-name">${name}</div>
+                            <div class="talent-tags">
+                                <span class="talent-tag ${beltClass}">${belt}</span>
+                                ${badgeTag}
+                            </div>
+                        </div>
+                        <div class="talent-dept">${dept}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderBadgeList() {
+            const grid = document.getElementById('badge-grid');
+            const meta = document.getElementById('badge-meta');
+
+            const list = [...BADGE_AWARDEES_2025];
+            meta.textContent = `2025 年颁发绿带徽章：共 ${list.length} 人（认证三科以上）`;
+
+            grid.innerHTML = list.map((x, idx) => {
+                const name = escapeHtml(x.name);
+                const code = escapeHtml(x.code);
+                return `
+                    <div class="talent-card badge-award" style="animation-delay:${idx * 60}ms;">
+                        <div class="badge-ribbon"><span class="badge-medal"></span>2025 绿带徽章</div>
+                        <div class="talent-head">
+                            <div class="talent-name">${idx + 1}. ${name}</div>
+                            <div class="talent-tags">
+                                <span class="talent-tag badge">${code}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function initTalentShowcase() {
+            renderTalentFilters();
+            switchTalentTab('list');
+
+            const search = document.getElementById('talent-search');
+            const dept = document.getElementById('talent-dept');
+            const belt = document.getElementById('talent-belt');
+
+            search.value = '';
+            dept.value = 'ALL';
+            belt.value = 'ALL';
+            talentState.keyword = '';
+            talentState.dept = 'ALL';
+            talentState.belt = 'ALL';
+
+            search.oninput = (e) => {
+                talentState.keyword = e.target.value || '';
+                renderTalentList();
+            };
+            dept.onchange = (e) => {
+                talentState.dept = e.target.value || 'ALL';
+                renderTalentList();
+            };
+            belt.onchange = (e) => {
+                talentState.belt = e.target.value || 'ALL';
+                renderTalentList();
+            };
+
+            renderTalentList();
+            renderBadgeList();
+        }
+
+        function openProfile() {
+            if (!ensureAuth(openProfile)) return;
+            document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+            document.getElementById('hero-page').style.display = 'none';
+            document.getElementById('profile-page').style.display = 'block';
+            setFooterVariant('simple');
+            renderProfile();
+            window.scrollTo(0,0);
+        }
+
+        function formatDateTime(d) {
+            if (!d) return '';
+            const raw = String(d);
+            if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}/.test(raw)) return raw.slice(0, 16);
+            const dt = new Date(raw);
+            if (Number.isNaN(dt.getTime())) return raw;
+            const parts = new Intl.DateTimeFormat('zh-CN', {
+                timeZone: 'Asia/Shanghai',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).formatToParts(dt);
+            const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+            return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}`;
+        }
+
+        function getUserTalentInfoByName(name) {
+            const n = String(name || '').trim();
+            if (!n) return null;
+            const matches = CERTIFIED_TALENTS.filter(t => String(t.name || '').trim() === n);
+            if (matches.length === 0) return null;
+            matches.sort((a, b) => {
+                const ab = String(a.belt || '');
+                const bb = String(b.belt || '');
+                const ap = ab.includes('黑') ? 0 : 1;
+                const bp = bb.includes('黑') ? 0 : 1;
+                return ap - bp;
+            });
+            return matches[0];
+        }
+
+        async function renderProfile() {
+            updateNavUser();
+            const summary = document.getElementById('profile-summary');
+            const examMeta = document.getElementById('profile-exam-meta');
+            const examList = document.getElementById('profile-exam-list');
+            if (!summary || !examMeta || !examList) return;
+
+            const badgeSet = buildBadgeSet();
+            const userName = appState.userInfo.name || '';
+            const userId = appState.userInfo.id || '';
+            const talent = getUserTalentInfoByName(userName);
+            const hasBadge = badgeSet.has(String(userName || '').trim());
+
+            const talentHtml = talent ? `
+                <div class="talent-tags" style="margin-top: 6px;">
+                    <span class="talent-tag ${beltClassName(talent.belt)}">${escapeHtml(talent.belt)}</span>
+                    ${hasBadge ? `<span class="talent-tag badge">绿带徽章</span>` : ''}
+                </div>
+                <div class="talent-dept" style="margin-top: 6px;">部门：${escapeHtml(talent.dept)}</div>
+            ` : `
+                <div class="talent-dept" style="margin-top: 6px;">你还未出现在带级人才名单中，继续加油，期待你通过认证上榜。</div>
+            `;
+
+            const authTag = isGuest()
+                ? `<span class="talent-tag black">游客模式</span>`
+                : `<span class="talent-tag green">已注册</span>`;
+
+            summary.innerHTML = `
+                <div class="talent-head">
+                    <div class="talent-name">${escapeHtml(userName)}（工号：${escapeHtml(userId)}）</div>
+                    <div class="talent-tags">
+                        ${authTag}
+                    </div>
+                </div>
+                ${talentHtml}
+            `;
+
+            if (!isRegistered()) {
+                examMeta.textContent = '游客模式无法查看/保存成绩与错题本/笔记本，请登录/注册后使用。';
+                examList.innerHTML = '';
+                return;
+            }
+
+            examMeta.textContent = '加载中...';
+            examList.innerHTML = '';
+
+            try {
+                const records = await apiGetUserExams(appState.userInfo.userId, appState.userInfo.id);
+                if (!records || records.length === 0) {
+                    examMeta.textContent = '暂无考试记录。去“资格认证”完成一次考试吧。';
+                    examList.innerHTML = '';
+                    return;
+                }
+
+                const best = Math.max(...records.map(r => Number(r.score || 0)));
+                const last = records[0] ? formatDateTime(records[0].exam_date) : '';
+                examMeta.textContent = `共 ${records.length} 次｜最高分 ${best}｜最近一次 ${last}`;
+
+                examList.innerHTML = `
+                    <table class="k-table">
+                        <tr>
+                            <th>时间</th>
+                            <th>科目</th>
+                            <th>分数</th>
+                            <th>答对/总题</th>
+                        </tr>
+                        ${records.map(r => `
+                            <tr>
+                                <td>${escapeHtml(formatDateTime(r.exam_date))}</td>
+                                <td>${escapeHtml(r.subject)}</td>
+                                <td><strong>${escapeHtml(String(r.score))}</strong></td>
+                                <td>${escapeHtml(String(r.correct_count))}/${escapeHtml(String(r.total_questions))}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                `;
+            } catch (e) {
+                examMeta.textContent = '成绩加载失败，请稍后重试。';
+                examList.innerHTML = '';
+            }
+        }
+
+        const memoState = {
+            tab: 'wrong',
+            wrongItems: [],
+            wrongKeyword: '',
+            wrongSubject: 'ALL',
+            notes: [],
+            editingNoteId: null
+        };
+
+        function renderMemoModules() {
+            const host = document.getElementById('memo-modules');
+            if (!host) return;
+            const locked = !isRegistered();
+            const hint = locked ? `<div class="memo-hint">仅注册用户可使用：内容会同步保存到数据库</div>` : '';
+            host.innerHTML = `
+                <div class="memo-grid">
+                    <div class="memo-card ${locked ? 'locked' : ''}" onclick="${locked ? `openLoginModal(() => openMemoCenter('wrong'))` : `openMemoCenter('wrong')`}">
+                        <div class="memo-head">
+                            <div class="memo-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M7 4h10a2 2 0 0 1 2 2v14" />
+                                    <path d="M5 6a2 2 0 0 1 2-2v16a2 2 0 0 0-2-2h12" />
+                                    <path d="M9 9h6" />
+                                    <path d="M9 12h5" />
+                                    <path d="M9 15h4" />
+                                    <path d="M14 18l2-2 2 2" />
+                                </svg>
+                            </div>
+                            <div class="memo-title">错题本</div>
+                        </div>
+                        <div class="memo-desc">自动收集练习/考试的错题，支持删除已掌握题目。</div>
+                        ${hint}
+                    </div>
+                    <div class="memo-card ${locked ? 'locked' : ''}" onclick="${locked ? `openLoginModal(() => openMemoCenter('notes'))` : `openMemoCenter('notes')`}">
+                        <div class="memo-head">
+                            <div class="memo-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 19V6a2 2 0 0 1 2-2h9a3 3 0 0 1 3 3v12" />
+                                    <path d="M6 18h11" />
+                                    <path d="M8 8h7" />
+                                    <path d="M8 11h7" />
+                                    <path d="M8 14h5" />
+                                    <path d="M8 21h10" />
+                                </svg>
+                            </div>
+                            <div class="memo-title">笔记本</div>
+                        </div>
+                        <div class="memo-desc">记录你自己的精益知识要点与复盘总结，下次登录仍可查看。</div>
+                        ${hint}
+                    </div>
+                </div>
+            `;
+        }
+
+        function openMemoCenter(tab) {
+            if (!ensureAuth(() => openMemoCenter(tab))) return;
+            document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+            document.getElementById('hero-page').style.display = 'none';
+            document.getElementById('memo-page').style.display = 'block';
+            setFooterVariant('simple');
+            switchMemoTab(tab || 'wrong');
+            window.scrollTo(0,0);
+        }
+
+        function switchMemoTab(tab) {
+            memoState.tab = tab === 'notes' ? 'notes' : 'wrong';
+            const wrongBtn = document.getElementById('tab-memo-wrong');
+            const noteBtn = document.getElementById('tab-memo-notes');
+            const wrongPanel = document.getElementById('memo-panel-wrong');
+            const notePanel = document.getElementById('memo-panel-notes');
+            const guestTip = document.getElementById('memo-guest-tip');
+
+            const activeStyle = (btn, on) => {
+                btn.classList.toggle('btn-primary', on);
+                btn.classList.toggle('btn-outline', !on);
+            };
+            activeStyle(wrongBtn, memoState.tab === 'wrong');
+            activeStyle(noteBtn, memoState.tab === 'notes');
+
+            const guest = !isRegistered();
+            if (guestTip) guestTip.style.display = guest ? 'block' : 'none';
+            wrongPanel.style.display = (memoState.tab === 'wrong' && !guest) ? 'block' : (guest ? 'none' : 'block');
+            notePanel.style.display = (memoState.tab === 'notes' && !guest) ? 'block' : 'none';
+
+            if (guest) return;
+            if (memoState.tab === 'wrong') loadWrongBook();
+            else loadNotes();
+        }
+
+        function filterWrongItems(items, keyword) {
+            const k = String(keyword || '').trim().toLowerCase();
+            if (!k) return items;
+            return items.filter(x => {
+                const hay = `${x.subject || ''} ${x.question_text || ''} ${x.correct_answer || ''} ${x.user_answer || ''}`.toLowerCase();
+                return hay.includes(k);
+            });
+        }
+
+        async function loadWrongBook() {
+            if (!isRegistered()) return;
+            const meta = document.getElementById('wrong-meta');
+            const listEl = document.getElementById('wrong-list');
+            const subjectSel = document.getElementById('wrong-subject');
+            const searchEl = document.getElementById('wrong-search');
+            if (!meta || !listEl || !subjectSel || !searchEl) return;
+
+            if (!searchEl.dataset.bound) {
+                searchEl.dataset.bound = '1';
+                searchEl.oninput = () => {
+                    memoState.wrongKeyword = searchEl.value || '';
+                    renderWrongList();
+                };
+            }
+            if (!subjectSel.dataset.bound) {
+                subjectSel.dataset.bound = '1';
+                subjectSel.onchange = () => {
+                    memoState.wrongSubject = subjectSel.value || 'ALL';
+                    loadWrongBook();
+                };
+            }
+            searchEl.value = memoState.wrongKeyword || '';
+            subjectSel.value = memoState.wrongSubject || 'ALL';
+
+            meta.textContent = '加载中...';
+            listEl.innerHTML = '';
+
+            const items = await apiGetWrongQuestions(appState.userInfo.userId, appState.userInfo.id, memoState.wrongSubject);
+            memoState.wrongItems = items || [];
+            renderWrongList();
+        }
+
+        function renderWrongList() {
+            const meta = document.getElementById('wrong-meta');
+            const listEl = document.getElementById('wrong-list');
+            const items = filterWrongItems(memoState.wrongItems, memoState.wrongKeyword);
+            meta.textContent = `共 ${items.length} 道错题`;
+            listEl.innerHTML = items.map(x => `
+                <div class="talent-card">
+                    <div class="talent-head">
+                        <div class="talent-name">${escapeHtml(x.subject || '')}｜${escapeHtml(x.created_at || '')}</div>
+                        <div class="talent-tags">
+                            <button class="btn btn-outline" onclick="deleteWrongItem(${Number(x.id)})" style="padding:6px 10px;">已掌握</button>
+                        </div>
+                    </div>
+                    <div class="talent-dept" style="margin-top: 6px;">题目：${escapeHtml(x.question_text || '')}</div>
+                    <div class="talent-dept" style="margin-top: 6px;">你的答案：<strong>${escapeHtml(x.user_answer || '')}</strong></div>
+                    <div class="talent-dept" style="margin-top: 6px;">正确答案：<strong>${escapeHtml(x.correct_answer || '')}</strong></div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteWrongItem(id) {
+            if (!isRegistered()) return;
+            if (!confirm('确认删除这道错题（已掌握）吗？')) return;
+            const res = await apiDeleteWrongQuestion({ userId: appState.userInfo.userId, employeeId: appState.userInfo.id, wrongId: id });
+            if (!res.ok || !res.data || !res.data.success) {
+                alert(`删除失败：${(res.data && res.data.error) || '请稍后重试'}`);
+                return;
+            }
+            await loadWrongBook();
+        }
+
+        async function loadNotes() {
+            if (!isRegistered()) return;
+            const meta = document.getElementById('note-meta');
+            const listEl = document.getElementById('note-list');
+            if (!meta || !listEl) return;
+            meta.textContent = '加载中...';
+            listEl.innerHTML = '';
+
+            const items = await apiGetNotes(appState.userInfo.userId, appState.userInfo.id);
+            memoState.notes = items || [];
+            meta.textContent = `共 ${memoState.notes.length} 条笔记`;
+            listEl.innerHTML = memoState.notes.map(n => `
+                <div class="talent-card">
+                    <div class="talent-head">
+                        <div class="talent-name">${escapeHtml(n.title || '')}</div>
+                        <div class="talent-tags">
+                            <button class="btn btn-outline" onclick="editNote(${Number(n.id)})" style="padding:6px 10px;">编辑</button>
+                            <button class="btn btn-outline" onclick="deleteNote(${Number(n.id)})" style="padding:6px 10px; border-color:#dc3545; color:#dc3545;">删除</button>
+                        </div>
+                    </div>
+                    <div class="talent-dept" style="margin-top: 6px; white-space: pre-wrap;">${escapeHtml(n.content || '')}</div>
+                    <div class="talent-dept" style="margin-top: 10px; color:#9aa3b2;">更新：${escapeHtml(n.updated_at || '')}</div>
+                </div>
+            `).join('');
+        }
+
+        function resetNoteForm() {
+            memoState.editingNoteId = null;
+            const title = document.getElementById('note-title');
+            const content = document.getElementById('note-content');
+            const formTitle = document.getElementById('note-form-title');
+            const cancel = document.getElementById('note-cancel-btn');
+            if (title) title.value = '';
+            if (content) content.value = '';
+            if (formTitle) formTitle.textContent = '新建笔记';
+            if (cancel) cancel.style.display = 'none';
+        }
+
+        function editNote(id) {
+            const n = memoState.notes.find(x => Number(x.id) === Number(id));
+            if (!n) return;
+            memoState.editingNoteId = Number(id);
+            document.getElementById('note-title').value = n.title || '';
+            document.getElementById('note-content').value = n.content || '';
+            document.getElementById('note-form-title').textContent = '编辑笔记';
+            document.getElementById('note-cancel-btn').style.display = 'inline-flex';
+            window.scrollTo(0,0);
+        }
+
+        async function saveNote() {
+            if (!isRegistered()) return;
+            const title = document.getElementById('note-title').value.trim();
+            const content = document.getElementById('note-content').value.trim();
+            if (!title || !content) {
+                alert('标题和内容不能为空');
+                return;
+            }
+            const res = await apiUpsertNote({
+                userId: appState.userInfo.userId,
+                employeeId: appState.userInfo.id,
+                noteId: memoState.editingNoteId,
+                title,
+                content
+            });
+            if (!res.ok || !res.data || !res.data.success) {
+                alert(`保存失败：${(res.data && res.data.error) || '请稍后重试'}`);
+                return;
+            }
+            resetNoteForm();
+            await loadNotes();
+        }
+
+        async function deleteNote(id) {
+            if (!isRegistered()) return;
+            if (!confirm('确认删除这条笔记吗？')) return;
+            const res = await apiDeleteNote({ userId: appState.userInfo.userId, employeeId: appState.userInfo.id, noteId: id });
+            if (!res.ok || !res.data || !res.data.success) {
+                alert(`删除失败：${(res.data && res.data.error) || '请稍后重试'}`);
+                return;
+            }
+            resetNoteForm();
+            await loadNotes();
+        }
+
+        async function recordWrongQuestion(q, userIdx, source) {
+            if (!isRegistered()) return;
+            if (!q || userIdx === undefined) return;
+            const options = Array.isArray(q.options) ? q.options.map(o => ({ text: o.text })) : [];
+            const correctAnswer = q.options && q.options[q.correctIndex] ? String(q.options[q.correctIndex].text || '') : '';
+            const idx = Number.isInteger(userIdx) ? userIdx : null;
+            const userAnswer = (idx !== null && q.options && q.options[idx]) ? String(q.options[idx].text || '') : '未作答';
+            const questionText = String(q.text || '').replace(/<[^>]*>/g, '').trim();
+            await apiUpsertWrongQuestion({
+                userId: appState.userInfo.userId,
+                employeeId: appState.userInfo.id,
+                subject: appState.subject || '',
+                questionText,
+                options,
+                correctAnswer,
+                userAnswer,
+                source: source || ''
+            });
+        }
+
         function closeLoginModal() {
+            if (!isLoggedIn()) return;
             document.getElementById('login-modal').style.display = 'none';
         }
 
-        async function submitUserInfo() {
+        function guestLogin() {
+            appState.userInfo = {
+                auth: 'guest',
+                name: '游客',
+                id: '',
+                userId: null,
+                avatar: appState.userInfo.avatar || AVATAR_OPTIONS[0].id
+            };
+            updateNavUser();
+            document.getElementById('login-modal').style.display = 'none';
+            const cb = postLoginCallback;
+            postLoginCallback = null;
+            if (cb) cb();
+            else goHome();
+        }
+
+        async function submitAuth() {
             const name = document.getElementById('user-name').value.trim();
             const id = document.getElementById('user-id').value.trim();
 
@@ -2126,38 +3717,41 @@
                 alert("请填写完整的姓名和工号！");
                 return;
             }
-
-            // 先保存基本信息（用于后续考试）
-            appState.userInfo.name = name;
-            appState.userInfo.id = id;
-
-            // 尝试调用登录API
-            const submitBtn = document.querySelector('#login-modal .btn-primary');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = '登录中...';
-            submitBtn.disabled = true;
-
-            const user = await apiLogin(id, name);
-
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-
-            if (user) {
-                // 登录成功，保存数据库返回的userId
-                appState.userInfo.userId = user.id;
-                console.log('登录成功:', user);
-            } else {
-                // API调用失败，但允许继续考试（降级处理）
-                console.warn('API登录失败，将使用离线模式');
-                if (!confirm('无法连接到服务器，是否继续考试（成绩不会保存）？')) {
-                    return;
-                }
+            if (!/^\d{7}$/.test(id)) {
+                alert("工号必须是7位数字，例如：1234567");
+                return;
             }
 
+            const submitBtn = document.getElementById('auth-primary-btn');
+            const originalText = submitBtn ? submitBtn.textContent : '';
+            if (submitBtn) {
+                submitBtn.textContent = authView === 'register' ? '注册中...' : '登录中...';
+                submitBtn.disabled = true;
+            }
+
+            const result = authView === 'register'
+                ? await apiRegister(id, name, appState.userInfo.avatar || AVATAR_OPTIONS[0].id)
+                : await apiLogin(id, name);
+
+            if (submitBtn) {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+
+            if (!result.ok || !result.user) {
+                alert(result.error || (authView === 'register' ? '注册失败，请稍后重试。' : '登录失败，请稍后重试。'));
+                return;
+            }
+
+            appState.userInfo = { auth: 'user', userId: result.user.id, id: result.user.employeeId, name: result.user.name, avatar: result.user.avatar || appState.userInfo.avatar || AVATAR_OPTIONS[0].id };
+            saveSession();
+            updateNavUser();
+
             document.getElementById('login-modal').style.display = 'none';
-            document.getElementById('subject-page').style.display = 'none';
-            initExam();
-            setFooterVariant('simple');
+            const cb = postLoginCallback;
+            postLoginCallback = null;
+            if (cb) cb();
+            else goHome();
         }
 
         function initStudy() {
@@ -2178,7 +3772,7 @@
                         </svg>
                         <span>🎬 点击观看视频学习</span>
                     </a>
-                    <p style="margin-top:15px; color:#888; font-size:0.9rem;">扫码或点击链接，获取更多视频讲解内容</p>
+                    <p style="margin-top:15px; color:#888; font-size:0.9rem;">点击上方按钮即可打开视频学习内容。</p>
                 </div>
             `;
             document.getElementById('study-content').innerHTML = KNOWLEDGE_BASE[appState.subject].content + douyinLink;
@@ -2351,6 +3945,7 @@
                 if(q.explanation) {
                     feedback.innerHTML += `<br><span style="font-size:0.9rem; color:#555; margin-top:5px; display:block;">解析：${q.explanation}</span>`;
                 }
+                recordWrongQuestion(q, userIdx, 'practice');
             }
             feedback.style.display = 'block';
 
@@ -2447,11 +4042,12 @@
                         userAnswer: userOpt ? userOpt.text : '未作答',
                         correctAnswer: correctOpt.text
                     });
+                    recordWrongQuestion(q, appState.examAnswers[i], 'exam');
                 }
             });
 
             let score = correctCount * 5;
-            let passed = score >= 80;
+            let passed = score >= 90;
             const timeSpent = 1200 - appState.timeLeft; // 计算用时（秒）
 
             document.getElementById('quiz-page').style.display = 'none';
@@ -2486,6 +4082,7 @@
             if (appState.userInfo.userId) {
                 const examData = {
                     userId: appState.userInfo.userId,
+                    employeeId: appState.userInfo.id,
                     subject: appState.subject,
                     score: score,
                     totalQuestions: appState.questions.length,
@@ -2544,7 +4141,10 @@
 
         // 初始化
         window.onload = function() {
-            goHome(); // 确保加载时应用正确的 Footer 样式
+            loadSession();
+            updateNavUser();
+            goHome();
+            if (!isLoggedIn()) openLoginModal();
         };
     </script>
 </body>

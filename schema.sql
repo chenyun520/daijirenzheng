@@ -9,6 +9,42 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 用户扩展资料（头像等）
+CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id INTEGER PRIMARY KEY,
+    avatar TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 用户错题本
+CREATE TABLE IF NOT EXISTS user_wrong_questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    subject TEXT NOT NULL,
+    question_text TEXT NOT NULL,
+    options_json TEXT,
+    correct_answer TEXT,
+    user_answer TEXT,
+    source TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, subject, question_text),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 用户笔记本
+CREATE TABLE IF NOT EXISTS user_notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- 创建考试记录表
 CREATE TABLE IF NOT EXISTS exam_records (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,6 +75,12 @@ CREATE INDEX IF NOT EXISTS idx_exam_user_id ON exam_records(user_id);
 CREATE INDEX IF NOT EXISTS idx_exam_subject ON exam_records(subject);
 CREATE INDEX IF NOT EXISTS idx_exam_date ON exam_records(exam_date);
 CREATE INDEX IF NOT EXISTS idx_wrong_exam_record ON wrong_answers(exam_record_id);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON user_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_wrong_user_id ON user_wrong_questions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_wrong_subject ON user_wrong_questions(subject);
+CREATE INDEX IF NOT EXISTS idx_user_wrong_updated ON user_wrong_questions(updated_at);
+CREATE INDEX IF NOT EXISTS idx_user_notes_user_id ON user_notes(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_notes_updated ON user_notes(updated_at);
 
 -- 创建视图：用户考试统计
 CREATE VIEW IF NOT EXISTS user_exam_stats AS
@@ -62,7 +104,7 @@ SELECT
     subject,
     COUNT(*) as total_exams,
     AVG(score) as avg_score,
-    COUNT(CASE WHEN score >= 80 THEN 1 END) as pass_count,
-    COUNT(CASE WHEN score < 80 THEN 1 END) as fail_count
+    COUNT(CASE WHEN score >= 90 THEN 1 END) as pass_count,
+    COUNT(CASE WHEN score < 90 THEN 1 END) as fail_count
 FROM exam_records
 GROUP BY subject;
