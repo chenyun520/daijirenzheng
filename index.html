@@ -484,7 +484,7 @@
                     </div>
                     <div style="display:grid; gap:10px;">
                         <button class="btn btn-primary" id="auth-primary-btn" onclick="submitAuth()" style="width:100%;">登录</button>
-                        <button class="btn btn-outline" onclick="guestLogin()" style="width:100%;">游客体验</button>
+                        <button class="btn btn-outline" onclick="guestLogin()" style="width:100%;">员工登录</button>
                     </div>
                     <div id="auth-hint" style="color:#6b7280; font-weight:800; font-size:0.9rem; text-align:left;"></div>
                 </div>
@@ -825,7 +825,7 @@
 
                 <div id="memo-guest-tip" class="talent-card" style="display:none; margin-top: 12px;">
                     <div class="talent-name">提示</div>
-                    <div class="talent-dept" style="margin-top: 6px;">当前为游客模式：错题本与笔记本仅支持注册用户使用，并可同步保存到数据库。</div>
+                    <div class="talent-dept" style="margin-top: 6px;">当前为员工模式（本机保存）：错题本与笔记本将保存在当前浏览器，不跨设备同步。登录/注册后可自动同步到数据库。</div>
                     <div style="margin-top: 12px;">
                         <button class="btn btn-primary" onclick="openLoginModal(openMemoCenter)">去登录/注册</button>
                     </div>
@@ -2702,7 +2702,7 @@
 
             chip.style.display = 'inline-flex';
             nameEl.textContent = appState.userInfo.name || '已登录';
-            idEl.textContent = isGuest() ? '游客' : (appState.userInfo.id ? `工号 ${appState.userInfo.id}` : '');
+            idEl.textContent = isGuest() ? '员工模式' : (appState.userInfo.id ? `工号 ${appState.userInfo.id}` : '');
             avatarEl.innerHTML = getAvatarSvg(appState.userInfo.avatar || AVATAR_OPTIONS[0].id);
             renderMemoModules();
         }
@@ -2779,22 +2779,21 @@
 
         function ensureAuth(callback) {
             if (isLoggedIn()) return true;
-            openLoginModal(callback);
-            return false;
+            guestLogin(true);
+            return true;
         }
 
         function logout() {
             localStorage.removeItem(AUTH_STORAGE_KEY);
             appState.userInfo = { auth: null, name: "", id: "", userId: null, avatar: AVATAR_OPTIONS[0].id };
-            updateNavUser();
+            guestLogin(true);
             goHome();
-            openLoginModal();
         }
 
         async function deleteAccount() {
             if (!ensureAuth(deleteAccount)) return;
             if (!isRegistered()) {
-                alert('游客模式无法注销账号，请先登录/注册。');
+                alert('员工模式无法注销账号，请先登录/注册。');
                 openLoginModal(deleteAccount);
                 return;
             }
@@ -3364,12 +3363,12 @@
             `;
 
             const authTag = isGuest()
-                ? `<span class="talent-tag black">游客模式</span>`
+                ? `<span class="talent-tag black">员工模式（本机保存）</span>`
                 : `<span class="talent-tag green">已注册</span>`;
 
             summary.innerHTML = `
                 <div class="talent-head">
-                    <div class="talent-name">${escapeHtml(userName)}（工号：${escapeHtml(userId)}）</div>
+                    <div class="talent-name">${escapeHtml(userName || '员工')}（${userId ? `工号：${escapeHtml(userId)}` : '未登录'}）</div>
                     <div class="talent-tags">
                         ${authTag}
                     </div>
@@ -3378,7 +3377,7 @@
             `;
 
             if (!isRegistered()) {
-                examMeta.textContent = '游客模式无法查看/保存成绩与错题本/笔记本，请登录/注册后使用。';
+                examMeta.textContent = '当前为员工模式（本机保存）：成绩不跨设备同步。登录/注册后可自动同步成绩与学习记录。';
                 examList.innerHTML = '';
                 return;
             }
@@ -3431,14 +3430,41 @@
             editingNoteId: null
         };
 
+        const LOCAL_WRONG_KEY = 'haers_local_wrong_v1';
+        const LOCAL_NOTES_KEY = 'haers_local_notes_v1';
+
+        function nowDateTimeText() {
+            return formatDateTime(new Date().toISOString());
+        }
+
+        function readLocalJson(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return fallback;
+                const parsed = JSON.parse(raw);
+                return parsed === undefined || parsed === null ? fallback : parsed;
+            } catch {
+                return fallback;
+            }
+        }
+
+        function writeLocalJson(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+
+        function newLocalId() {
+            return Number(`${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`);
+        }
+
         function renderMemoModules() {
             const host = document.getElementById('memo-modules');
             if (!host) return;
-            const locked = !isRegistered();
-            const hint = locked ? `<div class="memo-hint">仅注册用户可使用：内容会同步保存到数据库</div>` : '';
+            const hint = isRegistered()
+                ? `<div class="memo-hint">已注册：内容会同步保存到数据库</div>`
+                : `<div class="memo-hint">员工模式：内容仅保存在本机浏览器，不跨设备同步</div>`;
             host.innerHTML = `
                 <div class="memo-grid">
-                    <div class="memo-card ${locked ? 'locked' : ''}" onclick="${locked ? `openLoginModal(() => openMemoCenter('wrong'))` : `openMemoCenter('wrong')`}">
+                    <div class="memo-card" onclick="openMemoCenter('wrong')">
                         <div class="memo-head">
                             <div class="memo-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -3455,7 +3481,7 @@
                         <div class="memo-desc">自动收集练习/考试的错题，支持删除已掌握题目。</div>
                         ${hint}
                     </div>
-                    <div class="memo-card ${locked ? 'locked' : ''}" onclick="${locked ? `openLoginModal(() => openMemoCenter('notes'))` : `openMemoCenter('notes')`}">
+                    <div class="memo-card" onclick="openMemoCenter('notes')">
                         <div class="memo-head">
                             <div class="memo-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -3469,7 +3495,7 @@
                             </div>
                             <div class="memo-title">笔记本</div>
                         </div>
-                        <div class="memo-desc">记录你自己的精益知识要点与复盘总结，下次登录仍可查看。</div>
+                        <div class="memo-desc">记录你自己的精益知识要点与复盘总结，下次打开仍可查看。</div>
                         ${hint}
                     </div>
                 </div>
@@ -3501,12 +3527,11 @@
             activeStyle(wrongBtn, memoState.tab === 'wrong');
             activeStyle(noteBtn, memoState.tab === 'notes');
 
-            const guest = !isRegistered();
-            if (guestTip) guestTip.style.display = guest ? 'block' : 'none';
-            wrongPanel.style.display = (memoState.tab === 'wrong' && !guest) ? 'block' : (guest ? 'none' : 'block');
-            notePanel.style.display = (memoState.tab === 'notes' && !guest) ? 'block' : 'none';
+            const employeeMode = !isRegistered();
+            if (guestTip) guestTip.style.display = employeeMode ? 'block' : 'none';
+            wrongPanel.style.display = memoState.tab === 'wrong' ? 'block' : 'none';
+            notePanel.style.display = memoState.tab === 'notes' ? 'block' : 'none';
 
-            if (guest) return;
             if (memoState.tab === 'wrong') loadWrongBook();
             else loadNotes();
         }
@@ -3521,7 +3546,6 @@
         }
 
         async function loadWrongBook() {
-            if (!isRegistered()) return;
             const meta = document.getElementById('wrong-meta');
             const listEl = document.getElementById('wrong-list');
             const subjectSel = document.getElementById('wrong-subject');
@@ -3548,8 +3572,14 @@
             meta.textContent = '加载中...';
             listEl.innerHTML = '';
 
-            const items = await apiGetWrongQuestions(appState.userInfo.userId, appState.userInfo.id, memoState.wrongSubject);
-            memoState.wrongItems = items || [];
+            if (isRegistered()) {
+                const items = await apiGetWrongQuestions(appState.userInfo.userId, appState.userInfo.id, memoState.wrongSubject);
+                memoState.wrongItems = items || [];
+            } else {
+                const all = readLocalJson(LOCAL_WRONG_KEY, []);
+                const subj = memoState.wrongSubject || 'ALL';
+                memoState.wrongItems = subj === 'ALL' ? all : all.filter(x => String(x.subject || '') === subj);
+            }
             renderWrongList();
         }
 
@@ -3574,26 +3604,35 @@
         }
 
         async function deleteWrongItem(id) {
-            if (!isRegistered()) return;
             if (!confirm('确认删除这道错题（已掌握）吗？')) return;
-            const res = await apiDeleteWrongQuestion({ userId: appState.userInfo.userId, employeeId: appState.userInfo.id, wrongId: id });
-            if (!res.ok || !res.data || !res.data.success) {
-                alert(`删除失败：${(res.data && res.data.error) || '请稍后重试'}`);
+            if (isRegistered()) {
+                const res = await apiDeleteWrongQuestion({ userId: appState.userInfo.userId, employeeId: appState.userInfo.id, wrongId: id });
+                if (!res.ok || !res.data || !res.data.success) {
+                    alert(`删除失败：${(res.data && res.data.error) || '请稍后重试'}`);
+                    return;
+                }
+                await loadWrongBook();
                 return;
             }
+            const all = readLocalJson(LOCAL_WRONG_KEY, []);
+            const next = all.filter(x => String(x.id) !== String(id));
+            writeLocalJson(LOCAL_WRONG_KEY, next);
             await loadWrongBook();
         }
 
         async function loadNotes() {
-            if (!isRegistered()) return;
             const meta = document.getElementById('note-meta');
             const listEl = document.getElementById('note-list');
             if (!meta || !listEl) return;
             meta.textContent = '加载中...';
             listEl.innerHTML = '';
 
-            const items = await apiGetNotes(appState.userInfo.userId, appState.userInfo.id);
-            memoState.notes = items || [];
+            if (isRegistered()) {
+                const items = await apiGetNotes(appState.userInfo.userId, appState.userInfo.id);
+                memoState.notes = items || [];
+            } else {
+                memoState.notes = readLocalJson(LOCAL_NOTES_KEY, []);
+            }
             meta.textContent = `共 ${memoState.notes.length} 条笔记`;
             listEl.innerHTML = memoState.notes.map(n => `
                 <div class="talent-card">
@@ -3634,58 +3673,98 @@
         }
 
         async function saveNote() {
-            if (!isRegistered()) return;
             const title = document.getElementById('note-title').value.trim();
             const content = document.getElementById('note-content').value.trim();
             if (!title || !content) {
                 alert('标题和内容不能为空');
                 return;
             }
-            const res = await apiUpsertNote({
-                userId: appState.userInfo.userId,
-                employeeId: appState.userInfo.id,
-                noteId: memoState.editingNoteId,
-                title,
-                content
-            });
-            if (!res.ok || !res.data || !res.data.success) {
-                alert(`保存失败：${(res.data && res.data.error) || '请稍后重试'}`);
+            if (isRegistered()) {
+                const res = await apiUpsertNote({
+                    userId: appState.userInfo.userId,
+                    employeeId: appState.userInfo.id,
+                    noteId: memoState.editingNoteId,
+                    title,
+                    content
+                });
+                if (!res.ok || !res.data || !res.data.success) {
+                    alert(`保存失败：${(res.data && res.data.error) || '请稍后重试'}`);
+                    return;
+                }
+                resetNoteForm();
+                await loadNotes();
                 return;
             }
+
+            const all = readLocalJson(LOCAL_NOTES_KEY, []);
+            const now = nowDateTimeText();
+            const noteId = memoState.editingNoteId ? Number(memoState.editingNoteId) : null;
+            if (noteId) {
+                const idx = all.findIndex(x => Number(x.id) === noteId);
+                if (idx >= 0) {
+                    all[idx] = { ...all[idx], title, content, updated_at: now };
+                } else {
+                    all.unshift({ id: noteId, title, content, updated_at: now });
+                }
+            } else {
+                all.unshift({ id: newLocalId(), title, content, updated_at: now });
+            }
+            writeLocalJson(LOCAL_NOTES_KEY, all);
             resetNoteForm();
             await loadNotes();
         }
 
         async function deleteNote(id) {
-            if (!isRegistered()) return;
             if (!confirm('确认删除这条笔记吗？')) return;
-            const res = await apiDeleteNote({ userId: appState.userInfo.userId, employeeId: appState.userInfo.id, noteId: id });
-            if (!res.ok || !res.data || !res.data.success) {
-                alert(`删除失败：${(res.data && res.data.error) || '请稍后重试'}`);
+            if (isRegistered()) {
+                const res = await apiDeleteNote({ userId: appState.userInfo.userId, employeeId: appState.userInfo.id, noteId: id });
+                if (!res.ok || !res.data || !res.data.success) {
+                    alert(`删除失败：${(res.data && res.data.error) || '请稍后重试'}`);
+                    return;
+                }
+                resetNoteForm();
+                await loadNotes();
                 return;
             }
+
+            const all = readLocalJson(LOCAL_NOTES_KEY, []);
+            const next = all.filter(x => String(x.id) !== String(id));
+            writeLocalJson(LOCAL_NOTES_KEY, next);
             resetNoteForm();
             await loadNotes();
         }
 
         async function recordWrongQuestion(q, userIdx, source) {
-            if (!isRegistered()) return;
             if (!q || userIdx === undefined) return;
             const options = Array.isArray(q.options) ? q.options.map(o => ({ text: o.text })) : [];
             const correctAnswer = q.options && q.options[q.correctIndex] ? String(q.options[q.correctIndex].text || '') : '';
             const idx = Number.isInteger(userIdx) ? userIdx : null;
             const userAnswer = (idx !== null && q.options && q.options[idx]) ? String(q.options[idx].text || '') : '未作答';
             const questionText = String(q.text || '').replace(/<[^>]*>/g, '').trim();
-            await apiUpsertWrongQuestion({
-                userId: appState.userInfo.userId,
-                employeeId: appState.userInfo.id,
+            if (isRegistered()) {
+                await apiUpsertWrongQuestion({
+                    userId: appState.userInfo.userId,
+                    employeeId: appState.userInfo.id,
+                    subject: appState.subject || '',
+                    questionText,
+                    options,
+                    correctAnswer,
+                    userAnswer,
+                    source: source || ''
+                });
+                return;
+            }
+            const all = readLocalJson(LOCAL_WRONG_KEY, []);
+            all.unshift({
+                id: newLocalId(),
                 subject: appState.subject || '',
-                questionText,
-                options,
-                correctAnswer,
-                userAnswer,
+                question_text: questionText,
+                correct_answer: correctAnswer,
+                user_answer: userAnswer,
+                created_at: nowDateTimeText(),
                 source: source || ''
             });
+            writeLocalJson(LOCAL_WRONG_KEY, all);
         }
 
         function closeLoginModal() {
@@ -3693,10 +3772,10 @@
             document.getElementById('login-modal').style.display = 'none';
         }
 
-        function guestLogin() {
+        function guestLogin(silent) {
             appState.userInfo = {
                 auth: 'guest',
-                name: '游客',
+                name: '员工',
                 id: '',
                 userId: null,
                 avatar: appState.userInfo.avatar || AVATAR_OPTIONS[0].id
@@ -3705,6 +3784,7 @@
             document.getElementById('login-modal').style.display = 'none';
             const cb = postLoginCallback;
             postLoginCallback = null;
+            if (silent) return;
             if (cb) cb();
             else goHome();
         }
@@ -4141,10 +4221,10 @@
 
         // 初始化
         window.onload = function() {
-            loadSession();
+            const restored = loadSession();
+            if (!restored) guestLogin(true);
             updateNavUser();
             goHome();
-            if (!isLoggedIn()) openLoginModal();
         };
     </script>
 </body>
